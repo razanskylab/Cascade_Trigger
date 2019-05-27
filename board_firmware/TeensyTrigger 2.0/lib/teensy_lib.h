@@ -20,31 +20,43 @@ void serial_wait_next_command();
 #define WAIT_60_NS WAIT_20_NS; WAIT_20_NS; WAIT_20_NS;
 #define WAIT_80_NS WAIT_40_NS; WAIT_40_NS;
 #define WAIT_100_NS WAIT_80_NS; WAIT_20_NS;
+#define WAIT_400_NS WAIT_100_NS; WAIT_100_NS; WAIT_100_NS; WAIT_100_NS;
 
 // define commands %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #define DO_NOTHING 00
-#define DO_TRIGGER 11
-#define CHECK_CONNECTION 98
+#define SET_TRIGGER_CH 11
+#define DO_TRIGGER 22
+#define STOP_TRIGGER 23
+#define CHECK_CONNECTION 88
 #define DONE 99
 
+// define trigger port bits %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+#define DAQ_TRIG 8
+#define US_TRIG 7
+#define ONDA_TRIG 5
+#define EDGE_TRIG 4
+#define DAQ_LED_PIN 3
+  // screwed up wiring there, bit 8 of the LED port isn't connected right...
+
+
 uint32_t lastCommandCheck;
-uint16_t currentCommand = DO_TRIGGER; // for incoming serial data
+uint16_t currentCommand = DO_NOTHING; // for incoming serial data
 const uint16_t COMMAND_CHECK_INTERVALL = 100; // [ms] wait this long before checking for serial
-
-
 
 // PORTS and PIN fun %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 // port B (GPIOB_PDOR/GPIOB_PDIR) -> used for trigger input
 const uint8_t PORT_B_PINS[] = {16,17,18,19};
+#define TRIG_IN_PORT GPIOB_PDIR
 // trigger input Port to teensy Port mapping -> PORT_B_PINS
 // trigger in | teensy trigger in PIN | teensy port bit
-// 1 | 16 | 0
-// 2 | 17 | 1
-// 3 | 18 | 3
-// 4 | 19 | 2
+// 1 | 16 | 1
+// 2 | 17 | 2
+// 3 | 18 | 4
+// 4 | 19 | 3
 #define TRIG_IN1_HIGH GPIOB_PDIR & (1UL << 0)
 #define TRIG_IN1_LOW GPIOB_PDIR ^ (1UL << 0)
+#define TRIG_IN1 GPIOB_PDIR ^ (1UL << 0)
 
 #define TRIG_IN2_HIGH GPIOB_PDIR & (1UL << 1)
 #define TRIG_IN2_LOW GPIOB_PDIR ^ (1UL << 1)
@@ -57,6 +69,7 @@ const uint8_t PORT_B_PINS[] = {16,17,18,19};
 
 // port C (GPIOC_PDOR/GPIOC_PDIR) -> used for trigger output
 const uint8_t PORT_C_PINS[] = {15,22,23,9,10,13,11,12};
+#define TRIG_OUT_PORT GPIOC_PDOR
 // trigger output Port to teensy Port mapping -> PORT_C_PINS
 // trigger out | teensy trigger out PIN | teensy port bit
 // 1 | 12 | 8
@@ -71,6 +84,7 @@ const uint8_t PORT_C_PINS[] = {15,22,23,9,10,13,11,12};
 
 // port D (GPIOD_PDOR/GPIOD_PDIR) -> used for LED output
 const uint8_t PORT_D_PINS[] = {2,14,7,8,6,20,21,5};
+#define LED_PORT GPIOD_PDOR
 // triggerPort to LED mapping -> PORT_D_PINS
 // led out | teensy LED PIN | teensy port bit
 // 1 | 5  | 8

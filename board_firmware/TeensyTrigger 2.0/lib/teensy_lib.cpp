@@ -9,6 +9,8 @@ void setup_io_pins() {
     pinMode(PORT_C_PINS[i],OUTPUT);
     pinMode(PORT_D_PINS[i],OUTPUT);
   }
+  pinMode(DAQ_LED_PIN,OUTPUT);
+
 }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

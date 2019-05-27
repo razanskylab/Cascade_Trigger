@@ -5,11 +5,7 @@ classdef CascadeTrigger < BaseHardwareClass
   properties
     triggerMask(1,8) uint16 {mustBeInteger,mustBeNonnegative} = [0,0,0,0,0,0,0,0];
       % defines which channels to trigger
-    delays(1,8) uint16 {mustBeInteger,mustBeNonnegative} = [0,0,0,0,0,0,0,0];% [us]
-      % defines delays for each channel
-    durations(1,8) uint16 {mustBeInteger,mustBeNonnegative} = [0,0,0,0,0,0,0,0];% [us]
-      % defines on time for each trigger
-
+    mode(1,:) char = 'us'; % set function ensures only valid modes are used!
   end
 
   % depended properties are calculated from other properties
@@ -26,22 +22,28 @@ classdef CascadeTrigger < BaseHardwareClass
   % things we don't want to accidently change but that still might be interesting
   properties (Constant)
     % serial properties
-    SERIAL_PORT = 'COM11';
+    SERIAL_PORT = 'COM7';
     BAUD_RATE = 9600;
 
     DO_AUTO_CONNECT = true; % connect when object is initialized?
+    MAX_BYTE_PER_READ = 4096; % we can read this many bytes over serial at once
 
     %% Comands defined in teensy_lib.h
-    DO_NOTHING = uint16(0);
-    RECORD_CALIB_DATA = uint16(11);
-    SEND_CURRENT_POS = uint16(12);
-    SEND_CALIB_DATA = uint16(22);
-    RESET_HCTL_COUNTER = uint16(33);
-    RESET_TEENSY = uint16(44);
-    ENABLE_POS_TRIGGER = uint16(55);
-    DISABLE_POS_TRIGGER = uint16(56);
-    CHECK_CONNECTION = uint16(98);
+
+    % define commands %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    DO_NOTHING = uint16(00);
+    SET_TRIGGER_CH = uint16(11);
+    DO_TRIGGER = uint16(22);
+    STOP_TRIGGER = uint16(23);
+    CHECK_CONNECTION = uint16(88);
     DONE = uint16(99);
+
+    % define trigger port bits %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    DAQ_TRIG = uint16(8);
+    US_TRIG = uint16(7);
+    ONDA_TRIG = uint16(5);
+    EDGE_TRIG = uint16(4);
+    DAQ_LED_PIN = uint16(3);
   end
 
   % same as constant but now showing up as property
@@ -107,6 +109,47 @@ classdef CascadeTrigger < BaseHardwareClass
       CT.Write_Command(data); % same as command, but lets not confuse our users...
     end
 
+    function [] = Enable_Trigger(CT)
+      CT.VPrintF('[CT] Setting trigger channel: ');
+      CT.Write_Command(CT.SET_TRIGGER_CH); % same as command, but lets not confuse our users...
+      switch CT.mode
+        case 'us'
+          CT.VPrintF(' us...');
+          CT.Write_Command(CT.US_TRIG); % same as command, but lets not confuse our users...
+        case 'dye'
+          CT.VPrintF(' dye...');
+          CT.Write_Command(CT.EDGE_TRIG); % same as command, but lets not confuse our users...
+        case 'onda32'
+          CT.VPrintF(' onda32...');
+          CT.Write_Command(CT.ONDA_TRIG); % same as command, but lets not confuse our users...
+        otherwise
+          CT.VPrintF(' us...');
+          CT.Write_Command(CT.US_TRIG); % same as command, but lets not confuse our users...
+      end
+
+      if CT.Wait_Done()
+        CT.Done();
+        tic;
+        CT.VPrintF('[CT] Enabling trigger board...');
+        CT.Write_Command(CT.DO_TRIGGER);
+        CT.Done();
+      else
+        CT.Verbose_Warn('[CT] Trigger enable failed!\n');
+      end
+    end
+
+    function [] = Disable_Trigger(CT)
+      tic;
+      CT.VPrintF('[CT] Disabling trigger board...');
+      CT.Write_Command(CT.STOP_TRIGGER);
+      CT.Done();
+    end
+
+    function [] = Update_Trigger(CT)
+      CT.Disable_Trigger();
+      CT.Enable_Trigger();
+    end
+
   end
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -115,6 +158,10 @@ classdef CascadeTrigger < BaseHardwareClass
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   methods % set / get methods
+    function set.mode(CT,inMode)
+      CT.mode = validate_mode(inMode);
+    end
+
     function [bytesAvailable] = get.bytesAvailable(CT)
       if CT.isConnected
         numBytesToRead = 0;
