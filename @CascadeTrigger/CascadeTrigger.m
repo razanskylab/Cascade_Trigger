@@ -22,7 +22,7 @@ classdef CascadeTrigger < BaseHardwareClass
   % things we don't want to accidently change but that still might be interesting
   properties (Constant)
     % serial properties
-    SERIAL_PORT = 'COM7';
+    SERIAL_PORT = 'COM15';
     BAUD_RATE = 9600;
 
     DO_AUTO_CONNECT = true; % connect when object is initialized?
