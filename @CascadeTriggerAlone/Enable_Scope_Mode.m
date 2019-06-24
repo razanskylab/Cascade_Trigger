@@ -14,9 +14,9 @@ function [] = Enable_Scope_Mode(CT,nTrigger)
   slowMode = uint16(CT.slowSampling);
 
   if (nTrigger == 0)
-    CT.PrintF('[CT] Enabling free-running trigger @ %2.2fkHz.\n',CT.samplingFreq*1e-3);
+    CT.PrintF('[CT] Enabling free-running trigger @ %2.2fkHz.\n',CT.prf*1e-3);
   else
-    CT.PrintF('[CT] Enabling %i trigger @ %2.2fkHz.\n',nTrigger,CT.samplingFreq*1e-3);
+    CT.PrintF('[CT] Enabling %i trigger @ %2.2fkHz.\n',nTrigger,CT.prf*1e-3);
   end
 
   CT.Write_Command(CT.ENABLE_SCOPE_MODE);

@@ -3,14 +3,15 @@
 
 function [] = Disable_Scope(CT,timeOut)
   if nargin == 1
-    timeOut = 1; % 5 seconds default timeout
+    timeOut = 2; % 5 seconds default timeout
   end
 
   % starts recording of the calibration data in the teensy
-  t1 = tic();
   CT.PrintF('[CT] Disabling scope trigger\n');
   CT.Write_Command(CT.DISABLE_SCOPE);
+  CT.Wait_Done(timeOut);
   % wait for data to come in...
+  t1 = tic();
   while (CT.bytesAvailable<4)
     if toc(t1) > timeOut
       CT.Verbose_Warn('Teensy response timeout!\n');

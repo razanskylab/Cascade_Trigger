@@ -18,7 +18,7 @@ uint32_t lastSamplingTime; // used during stage calibration
 void setup() {
   setup_io_pins();
   Serial.begin(9600);
-  currentCommand = SET_TRIGGER_CH;
+  currentCommand = DO_NOTHING;
   trigOutChMask = 0b00000000;
   for (int iLed = 0; iLed<8; iLed++)
   {
@@ -44,12 +44,22 @@ void loop() {
     // here starts our state machine
     switch (currentCommand) {
       // -----------------------------------------------------------------------
+      case DO_NOTHING:
+        break;
+      // -----------------------------------------------------------------------
       case SET_TRIGGER_CH:
         // FIXME uncomment this!
         triggerOut = static_cast<uint8_t>(serial_read_16bit());
-        trigOutChMask = 0b00000000;
-        trigOutChMask |= (1UL << (DAQ_TRIG-1)); // always tigger DAQ
-        trigOutChMask |= (1UL << (triggerOut-1)); // trigger US or Onda or Dye
+        if (triggerOut == ALL_TRIG){
+          trigOutChMask = 0b11111111;
+        }
+        else {
+          trigOutChMask = 0b00000000;
+          trigOutChMask |= (1UL << (DAQ_TRIG-1)); // always tigger DAQ
+          trigOutChMask |= (1UL << (triggerOut-1)); // trigger US or Onda or Dye
+        }
+        serial_write_16bit(static_cast<uint16_t>(trigOutChMask)); // send the "ok, we are done" command
+        serial_write_16bit(static_cast<uint16_t>(triggerOut)); // send the "ok, we are done" command
         serial_write_16bit(DONE); // send the "ok, we are done" command
         currentCommand = DO_NOTHING; // no need to send extra command?
         break;
@@ -116,8 +126,8 @@ void loop() {
           TRIG_OUT_PORT = trigOutChMask; // enable triggers as prev. defined
           delayMicroseconds(1);
           TRIG_OUT_PORT = 0b00000000; // disable all trigger
+          triggerCounter++;
 
-          // triggerCounter++;
 
           // if nTrigger = 0 we trigger indefinately
           if (nTrigger && (triggerCounter >= nTrigger)){
@@ -139,6 +149,7 @@ void loop() {
             }
           }
         }
+        serial_write_16bit(DONE); // send the "ok, we are done" command
         serial_write_32bit(triggerCounter);
         LED_PORT = 0b00000000; // disable LEDs
         digitalWriteFast(DAQ_LED_PIN, LOW);
