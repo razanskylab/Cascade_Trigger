@@ -1,8 +1,9 @@
 % non functional example class to be used as basis for new hardware interfacing
 % class, as they alls should have similar structure and content
 
-classdef CascadeTrigger < BaseHardwareClass
+classdef CascadeTriggerAlone < BaseHardwareClass
   properties
+    prf(1,1) {mustBeNumeric,mustBeNonnegative,mustBeFinite} = 100;
     triggerMask(1,8) uint16 {mustBeInteger,mustBeNonnegative} = [0,0,0,0,0,0,0,0];
       % defines which channels to trigger
     mode(1,:) char = 'us'; % set function ensures only valid modes are used!
@@ -11,6 +12,8 @@ classdef CascadeTrigger < BaseHardwareClass
   % depended properties are calculated from other properties
   properties (Dependent = true)
     bytesAvailable(1,1) {mustBeNumeric}; % [counts] current stage position, read from quad encoder
+    samplingPeriod(1,1) uint16 {mustBeInteger,mustBeNonnegative};
+    slowSampling(1,1); % sets samplingPeriod in us or ms
   end
 
   % things we don't want to accidently change but that still might be interesting
@@ -19,10 +22,14 @@ classdef CascadeTrigger < BaseHardwareClass
     isConnected = false;
   end
 
+  properties (SetAccess = private, Transient = true)
+    lastTrigCount(1,1) {mustBeNumeric,mustBeNonnegative,mustBeFinite};
+  end
+
   % things we don't want to accidently change but that still might be interesting
   properties (Constant)
     % serial properties
-    SERIAL_PORT = 'COM15';
+    SERIAL_PORT = 'COM13';
     BAUD_RATE = 9600;
 
     DO_AUTO_CONNECT = true; % connect when object is initialized?
@@ -35,6 +42,8 @@ classdef CascadeTrigger < BaseHardwareClass
     SET_TRIGGER_CH = uint16(11);
     DO_TRIGGER = uint16(22);
     STOP_TRIGGER = uint16(23);
+    ENABLE_SCOPE_MODE = uint16(66);
+    DISABLE_SCOPE = uint16(67);
     CHECK_CONNECTION = uint16(88);
     DONE = uint16(99);
 
@@ -44,6 +53,7 @@ classdef CascadeTrigger < BaseHardwareClass
     ONDA_TRIG = uint16(5);
     EDGE_TRIG = uint16(4);
     DAQ_LED_PIN = uint16(3);
+    ALL_TRIG = uint16(0);
   end
 
   % same as constant but now showing up as property
@@ -56,7 +66,7 @@ classdef CascadeTrigger < BaseHardwareClass
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   methods
     % constructor, called when class is created
-    function CT = CascadeTrigger(doConnect)
+    function CT = CascadeTriggerAlone(doConnect)
       if nargin < 1
         doConnect = CT.DO_AUTO_CONNECT;
       end
@@ -110,22 +120,7 @@ classdef CascadeTrigger < BaseHardwareClass
     end
 
     function [] = Enable_Trigger(CT)
-      CT.VPrintF('[CT] Setting trigger channel: ');
-      CT.Write_Command(CT.SET_TRIGGER_CH); % same as command, but lets not confuse our users...
-      switch CT.mode
-        case 'us'
-          CT.VPrintF(' us...');
-          CT.Write_Command(CT.US_TRIG); % same as command, but lets not confuse our users...
-        case 'dye'
-          CT.VPrintF(' dye...');
-          CT.Write_Command(CT.EDGE_TRIG); % same as command, but lets not confuse our users...
-        case 'onda32'
-          CT.VPrintF(' onda32...');
-          CT.Write_Command(CT.ONDA_TRIG); % same as command, but lets not confuse our users...
-        otherwise
-          CT.VPrintF(' us...');
-          CT.Write_Command(CT.US_TRIG); % same as command, but lets not confuse our users...
-      end
+      CT.Setup_Trigger();
 
       if CT.Wait_Done()
         CT.Done();
@@ -150,6 +145,27 @@ classdef CascadeTrigger < BaseHardwareClass
       CT.Enable_Trigger();
     end
 
+    % --------------------------------------------------------------------------
+    function [slowSampling] = get.slowSampling(CT)
+      if CT.prf > 20
+        % samplingPeriod in us
+        slowSampling = false;
+      else
+        % samplingPeriod in ms
+        slowSampling = true;
+      end
+    end
+    % --------------------------------------------------------------------------
+    function [samplingPeriod] = get.samplingPeriod(CT)
+      if CT.slowSampling
+        % samplingPeriod in ms
+        samplingPeriod = uint16(1./CT.prf*1e3);
+      else
+        % samplingPeriod in us
+        samplingPeriod = uint16(1./CT.prf*1e6);
+      end
+    end
+
   end
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -159,7 +175,11 @@ classdef CascadeTrigger < BaseHardwareClass
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   methods % set / get methods
     function set.mode(CT,inMode)
-      CT.mode = validate_mode(inMode);
+      if strcmp(inMode,'all')
+        CT.mode = 'all'; % trigger on all channels at the same time
+      else
+        CT.mode = validate_mode(inMode); % normal triggering
+      end
     end
 
     function [bytesAvailable] = get.bytesAvailable(CT)
