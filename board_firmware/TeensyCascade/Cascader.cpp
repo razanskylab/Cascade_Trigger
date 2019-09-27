@@ -9,35 +9,40 @@ void increase_timer(){
 // starts a cascade following an incoming trigger event
 void Cascader::start_cascade(){
 
-	time100NS = 0; // set timer to 0
+	for(unsigned char iAverage = 0; iAverage < nAverages; iAverage++){
+		time100NS = 0; // set timer to 0
 
-	myTimer.begin(increase_timer, 1);
+		myTimer.begin(increase_timer, 1);
 
-	// start cascade
-	do
-	{
-		chDac.update(time100NS);
-		chArray[0].update(time100NS); // check if we need to set channel high or low
-		chArray[1].update(time100NS); // check if we need to set channel high or low
-		chArray[2].update(time100NS); // check if we need to set channel high or low
-			
-	} while (time100NS < endTime);
+		// start cascade
+		do{
+			chDac.update(time100NS);
+			chArray[0].update(time100NS); // check if we need to set channel high or low
+			chArray[1].update(time100NS); // check if we need to set channel high or low
+			chArray[2].update(time100NS); // check if we need to set channel high or low
+				
+		}while (time100NS < endTime);
 
-	myTimer.end();
+		myTimer.end();
 
-	// reset all flags in channel subclasses
-	for(unsigned char iChannel = 0; iChannel < nChannels; iChannel++){
-		chArray[iChannel].reset_flags();
+		// reset all flags in channel subclasses
+		for(unsigned char iChannel = 0; iChannel < nChannels; iChannel++){
+			chArray[iChannel].reset_flags();
+		}
+		
+		// get dac channel ready for next round
+		chDac.reset_flags();
 	}
-	
-	// get dac channel ready for next round
-	chDac.reset_flags();
 
 }
 
 
 // initialize cascader
-void Cascader::init(const char timepoints[NCHANNELS * 2], unsigned char timepointsDac[NCHANNELS]){
+void Cascader::init(
+	const char timepoints[NCHANNELS * 2],
+	unsigned char timepointsDac[NCHANNELS],
+	const char _nAverages,
+	const char _tAcquire){
 
 	// push start and stop times to channel class
 	for(unsigned int iChannel = 0; iChannel < NCHANNELS; iChannel++){
@@ -65,6 +70,7 @@ void Cascader::init(const char timepoints[NCHANNELS * 2], unsigned char timepoin
 	}
 
 	// add 1 micros to end time to make sure that everything is done before we leave our loop
-	endTime = endTime + 1;
-
+	endTime = endTime + _tAcquire;
+	tAcquire = _tAcquire;
+	nAverages = _nAverages;
 }

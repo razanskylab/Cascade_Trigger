@@ -7,12 +7,12 @@ classdef CascadeCommunicator < handle
 
 	properties
 		wavelengths(1, :) double {mustBePositive, mustBeFinite} = [532, 1064, 700];
-
 		% order delay(1) is onda532, delay(2) is dye, delay(3) is onda1064 
 		delay(1, 3) double = [0.2, 20, 0.2]; % delay between trigger and lasershot in micros
 		triggerLength(1, 3) double = [2.1, 5, 2]; % for how long do we need to trigger the laser
 		tAcquire double = 4.8276; % time for data acquisition in micros
 		timepoints(4, 3) double; 
+		nAverages(1, 1) uint32 = 1;
 		% first dim is 1: risingEdge, 2: expected shot timepoint, 3: fallingEgdgestop trigger, 4: DAC trigger
 		% second dim laser id, order is: Onda532, edge/dye, onda1064
 	end

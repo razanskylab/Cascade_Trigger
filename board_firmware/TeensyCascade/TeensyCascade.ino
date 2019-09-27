@@ -79,15 +79,18 @@ void loop(){
 		// Read timepoints from PC, deactivate channel by setting offtime == ontime
 		char timepoints[NCHANNELS * 2]; // temp array for channel timepoints
 		char timepointsDac[NCHANNELS]; // temp array for dac timepoints
+		char nAverages;
+		char tAcquire;
 		unsigned char uTimepointsDac[NCHANNELS];
 		Serial.readBytes(timepoints, NCHANNELS * 2); // read on off timepoints for each channel
 		Serial.readBytes(timepointsDac, NCHANNELS); // read trig timepoints for dac
-		
+		nAverages = Serial.read();
+		tAcquire = Serial.read();
 		// convert tiempointsDac into unsigned
 		for (unsigned char iChannel = 0; iChannel < NCHANNELS; iChannel++)
 			uTimepointsDac[iChannel] = static_cast<unsigned char>(timepointsDac[iChannel]);
 
-		myCascader.init(timepoints, uTimepointsDac); // pass information to cascader class
+		myCascader.init(timepoints, uTimepointsDac, nAverages, tAcquire); // pass information to cascader class
 	}else // invalid command
 	{
 		Serial.print("Invalid mode, returning to wait.\r");

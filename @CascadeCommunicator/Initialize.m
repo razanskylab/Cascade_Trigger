@@ -8,9 +8,7 @@
 function Initialize(cc)
 
 	cc.Clear_Serial_Input();
-
 	fprintf('[CascadeCommunicator] Initializing... ');
-
 	sortedDac = sort(cc.timepoints(4, :)); % sort trigger events of dac in rising order
 
 	% first character needs to be an x to make sure that the teensy understands what we want
@@ -27,6 +25,11 @@ function Initialize(cc)
 	for iLaser = 1:cc.nLasers
 		string = [string, char(floor(sortedDac(iLaser)))];
 	end
+
+	% add char indicating the number of averages
+	string = [string, char(cc.nAverages)];
+	% add char indicating delay between averages
+	string = [string, char(ceil(cc.tAcquire))]
 
 	fprintf(cc.S, string);
 	% pause(0.3);
