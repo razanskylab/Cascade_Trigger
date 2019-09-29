@@ -192,11 +192,11 @@ X ~ 2 0 -150 50 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# custom_kicad_parts_EL7104
+# cascade_trigger-rescue_EL7104-custom_kicad_parts
 #
-DEF custom_kicad_parts_EL7104 U 0 40 Y Y 1 F N
+DEF cascade_trigger-rescue_EL7104-custom_kicad_parts U 0 40 Y Y 1 F N
 F0 "U" 0 -550 50 H V C CNN
-F1 "custom_kicad_parts_EL7104" 100 -50 50 H V C CNN
+F1 "cascade_trigger-rescue_EL7104-custom_kicad_parts" 100 -50 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -212,38 +212,11 @@ X Vcc 8 450 -150 100 L 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
-# power_GND
+# cascade_trigger-rescue_Teensy3.6-teensy
 #
-DEF power_GND #PWR 0 0 Y Y 1 F P
-F0 "#PWR" 0 -250 50 H I C CNN
-F1 "power_GND" 0 -150 50 H V C CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 0 0 50 H I C CNN
-DRAW
-P 6 0 1 0 0 0 0 -50 50 -50 0 -100 -50 -50 0 -50 N
-X GND 1 0 0 0 D 50 50 1 1 W N
-ENDDRAW
-ENDDEF
-#
-# power_VCC
-#
-DEF power_VCC #PWR 0 0 Y Y 1 F P
-F0 "#PWR" 0 -150 50 H I C CNN
-F1 "power_VCC" 0 150 50 H V C CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 0 0 50 H I C CNN
-DRAW
-C 0 75 25 0 1 0 N
-P 2 0 1 0 0 0 0 50 N
-X VCC 1 0 0 0 U 50 50 1 1 W N
-ENDDRAW
-ENDDEF
-#
-# teensy_Teensy3.6
-#
-DEF teensy_Teensy3.6 U 0 40 Y Y 1 F N
+DEF cascade_trigger-rescue_Teensy3.6-teensy U 0 40 Y Y 1 F N
 F0 "U" 0 2300 60 H V C CNN
-F1 "teensy_Teensy3.6" 0 -2300 60 H V C CNN
+F1 "cascade_trigger-rescue_Teensy3.6-teensy" 0 -2300 60 H V C CNN
 F2 "" 0 0 60 H V C CNN
 F3 "" 0 0 60 H V C CNN
 DRAW
@@ -334,6 +307,33 @@ X 55 84 1000 1900 200 L 50 50 1 1 B
 X 56 85 1000 2000 200 L 50 50 1 1 B
 X 57 86 1000 2100 200 L 50 50 1 1 B
 X 7_RX3_miso0_scl0 9 -1000 1300 200 R 50 50 1 1 B
+ENDDRAW
+ENDDEF
+#
+# power_GND
+#
+DEF power_GND #PWR 0 0 Y Y 1 F P
+F0 "#PWR" 0 -250 50 H I C CNN
+F1 "power_GND" 0 -150 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+P 6 0 1 0 0 0 0 -50 50 -50 0 -100 -50 -50 0 -50 N
+X GND 1 0 0 0 D 50 50 1 1 W N
+ENDDRAW
+ENDDEF
+#
+# power_VCC
+#
+DEF power_VCC #PWR 0 0 Y Y 1 F P
+F0 "#PWR" 0 -150 50 H I C CNN
+F1 "power_VCC" 0 150 50 H V C CNN
+F2 "" 0 0 50 H I C CNN
+F3 "" 0 0 50 H I C CNN
+DRAW
+C 0 75 25 0 1 0 N
+P 2 0 1 0 0 0 0 50 N
+X VCC 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #

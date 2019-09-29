@@ -1,4 +1,5 @@
 EESchema Schematic File Version 4
+LIBS:cascade_trigger-cache
 EELAYER 29 0
 EELAYER END
 $Descr A3 16535 11693
@@ -14,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L teensy:Teensy3.6 U2
+L cascade_trigger-rescue:Teensy3.6-teensy U2
 U 1 1 5CD2C8C4
 P 9450 4800
 F 0 "U2" H 9450 7187 60  0000 C CNN
@@ -150,7 +151,7 @@ Connection ~ 2600 2900
 Wire Wire Line
 	2600 2900 2000 2900
 $Comp
-L custom_kicad_parts:EL7104 Driver_1
+L cascade_trigger-rescue:EL7104-custom_kicad_parts Driver_1
 U 1 1 5CD3B04F
 P 1850 2250
 F 0 "Driver_1" H 1950 2400 50  0000 C CNN
@@ -345,7 +346,7 @@ Connection ~ 2600 4150
 Wire Wire Line
 	2600 4150 2000 4150
 $Comp
-L custom_kicad_parts:EL7104 Driver_2
+L cascade_trigger-rescue:EL7104-custom_kicad_parts Driver_2
 U 1 1 5CE2579C
 P 1850 3500
 F 0 "Driver_2" H 1950 3650 50  0000 C CNN
@@ -540,7 +541,7 @@ Connection ~ 2600 5450
 Wire Wire Line
 	2600 5450 2000 5450
 $Comp
-L custom_kicad_parts:EL7104 Driver_3
+L cascade_trigger-rescue:EL7104-custom_kicad_parts Driver_3
 U 1 1 5CE3958A
 P 1850 4800
 F 0 "Driver_3" H 1950 4950 50  0000 C CNN
@@ -735,7 +736,7 @@ Connection ~ 2600 6700
 Wire Wire Line
 	2600 6700 2000 6700
 $Comp
-L custom_kicad_parts:EL7104 Driver_4
+L cascade_trigger-rescue:EL7104-custom_kicad_parts Driver_4
 U 1 1 5CE39617
 P 1850 6050
 F 0 "Driver_4" H 1950 6200 50  0000 C CNN
@@ -930,7 +931,7 @@ Connection ~ 5750 2900
 Wire Wire Line
 	5750 2900 5150 2900
 $Comp
-L custom_kicad_parts:EL7104 Driver_5
+L cascade_trigger-rescue:EL7104-custom_kicad_parts Driver_5
 U 1 1 5CE50D7C
 P 5000 2250
 F 0 "Driver_5" H 5100 2400 50  0000 C CNN
@@ -1125,7 +1126,7 @@ Connection ~ 5750 4150
 Wire Wire Line
 	5750 4150 5150 4150
 $Comp
-L custom_kicad_parts:EL7104 Driver_6
+L cascade_trigger-rescue:EL7104-custom_kicad_parts Driver_6
 U 1 1 5CE50E09
 P 5000 3500
 F 0 "Driver_6" H 5100 3650 50  0000 C CNN
@@ -1320,7 +1321,7 @@ Connection ~ 5750 5450
 Wire Wire Line
 	5750 5450 5150 5450
 $Comp
-L custom_kicad_parts:EL7104 Driver_7
+L cascade_trigger-rescue:EL7104-custom_kicad_parts Driver_7
 U 1 1 5CE50E96
 P 5000 4800
 F 0 "Driver_7" H 5100 4950 50  0000 C CNN
@@ -1515,7 +1516,7 @@ Connection ~ 5750 6700
 Wire Wire Line
 	5750 6700 5150 6700
 $Comp
-L custom_kicad_parts:EL7104 Driver_8
+L cascade_trigger-rescue:EL7104-custom_kicad_parts Driver_8
 U 1 1 5CE50F23
 P 5000 6050
 F 0 "Driver_8" H 5100 6200 50  0000 C CNN
@@ -1687,141 +1688,141 @@ Connection ~ 4500 6300
 $Comp
 L Connector_Generic:Conn_01x02 Trig_IN_1
 U 1 1 5CE8A6CB
-P 11700 1000
-F 0 "Trig_IN_1" V 11664 812 50  0000 R CNN
-F 1 "Trig_SMA" V 11573 812 50  0000 R CNN
-F 2 "Connector_Coaxial:SMB_Jack_Vertical" H 11700 1000 50  0001 C CNN
-F 3 "~" H 11700 1000 50  0001 C CNN
-	1    11700 1000
+P 11650 4450
+F 0 "Trig_IN_1" V 11614 4262 50  0000 R CNN
+F 1 "Trig_SMA" V 11523 4262 50  0000 R CNN
+F 2 "Connector_Coaxial:SMB_Jack_Vertical" H 11650 4450 50  0001 C CNN
+F 3 "~" H 11650 4450 50  0001 C CNN
+	1    11650 4450
 	0    -1   -1   0   
 $EndComp
 $Comp
 L Device:R R10
 U 1 1 5CE8AA5F
-P 12000 1400
-F 0 "R10" H 12070 1446 50  0000 L CNN
-F 1 "10k" H 12070 1355 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 11930 1400 50  0001 C CNN
-F 3 "~" H 12000 1400 50  0001 C CNN
-	1    12000 1400
+P 11950 4850
+F 0 "R10" H 12020 4896 50  0000 L CNN
+F 1 "10k" H 12020 4805 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 11880 4850 50  0001 C CNN
+F 3 "~" H 11950 4850 50  0001 C CNN
+	1    11950 4850
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR015
 U 1 1 5CE8AEFF
-P 11800 1550
-F 0 "#PWR015" H 11800 1300 50  0001 C CNN
-F 1 "GND" H 11805 1377 50  0000 C CNN
-F 2 "" H 11800 1550 50  0001 C CNN
-F 3 "" H 11800 1550 50  0001 C CNN
-	1    11800 1550
+P 11750 5000
+F 0 "#PWR015" H 11750 4750 50  0001 C CNN
+F 1 "GND" H 11755 4827 50  0000 C CNN
+F 2 "" H 11750 5000 50  0001 C CNN
+F 3 "" H 11750 5000 50  0001 C CNN
+	1    11750 5000
 	1    0    0    -1  
 $EndComp
-Text GLabel 11700 1350 3    50   Input ~ 0
+Text GLabel 11650 4800 3    50   Input ~ 0
 TrigIn1
-Text GLabel 12450 1350 3    50   Input ~ 0
+Text GLabel 12400 4800 3    50   Input ~ 0
 TrigIn2
-Text GLabel 13150 1350 3    50   Input ~ 0
+Text GLabel 13100 4800 3    50   Input ~ 0
 TrigIn3
-Text GLabel 13900 1350 3    50   Input ~ 0
+Text GLabel 13850 4800 3    50   Input ~ 0
 TrigIn4
 $Comp
 L Connector_Generic:Conn_01x02 Trig_IN_2
 U 1 1 5CF54FB3
-P 12450 1000
-F 0 "Trig_IN_2" V 12414 812 50  0000 R CNN
-F 1 "Trig_SMA" V 12323 812 50  0000 R CNN
-F 2 "Connector_Coaxial:SMB_Jack_Vertical" H 12450 1000 50  0001 C CNN
-F 3 "~" H 12450 1000 50  0001 C CNN
-	1    12450 1000
+P 12400 4450
+F 0 "Trig_IN_2" V 12364 4262 50  0000 R CNN
+F 1 "Trig_SMA" V 12273 4262 50  0000 R CNN
+F 2 "Connector_Coaxial:SMB_Jack_Vertical" H 12400 4450 50  0001 C CNN
+F 3 "~" H 12400 4450 50  0001 C CNN
+	1    12400 4450
 	0    -1   -1   0   
 $EndComp
 $Comp
 L Device:R R11
 U 1 1 5CF54FBD
-P 12750 1400
-F 0 "R11" H 12820 1446 50  0000 L CNN
-F 1 "10k" H 12820 1355 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 12680 1400 50  0001 C CNN
-F 3 "~" H 12750 1400 50  0001 C CNN
-	1    12750 1400
+P 12700 4850
+F 0 "R11" H 12770 4896 50  0000 L CNN
+F 1 "10k" H 12770 4805 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 12630 4850 50  0001 C CNN
+F 3 "~" H 12700 4850 50  0001 C CNN
+	1    12700 4850
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR016
 U 1 1 5CF54FC7
-P 12550 1550
-F 0 "#PWR016" H 12550 1300 50  0001 C CNN
-F 1 "GND" H 12555 1377 50  0000 C CNN
-F 2 "" H 12550 1550 50  0001 C CNN
-F 3 "" H 12550 1550 50  0001 C CNN
-	1    12550 1550
+P 12500 5000
+F 0 "#PWR016" H 12500 4750 50  0001 C CNN
+F 1 "GND" H 12505 4827 50  0000 C CNN
+F 2 "" H 12500 5000 50  0001 C CNN
+F 3 "" H 12500 5000 50  0001 C CNN
+	1    12500 5000
 	1    0    0    -1  
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x02 Trig_IN_3
 U 1 1 5CF792C6
-P 13150 1000
-F 0 "Trig_IN_3" V 13114 812 50  0000 R CNN
-F 1 "Trig_SMA" V 13023 812 50  0000 R CNN
-F 2 "Connector_Coaxial:SMB_Jack_Vertical" H 13150 1000 50  0001 C CNN
-F 3 "~" H 13150 1000 50  0001 C CNN
-	1    13150 1000
+P 13100 4450
+F 0 "Trig_IN_3" V 13064 4262 50  0000 R CNN
+F 1 "Trig_SMA" V 12973 4262 50  0000 R CNN
+F 2 "Connector_Coaxial:SMB_Jack_Vertical" H 13100 4450 50  0001 C CNN
+F 3 "~" H 13100 4450 50  0001 C CNN
+	1    13100 4450
 	0    -1   -1   0   
 $EndComp
 $Comp
 L Device:R R12
 U 1 1 5CF792D0
-P 13450 1400
-F 0 "R12" H 13520 1446 50  0000 L CNN
-F 1 "10k" H 13520 1355 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 13380 1400 50  0001 C CNN
-F 3 "~" H 13450 1400 50  0001 C CNN
-	1    13450 1400
+P 13400 4850
+F 0 "R12" H 13470 4896 50  0000 L CNN
+F 1 "10k" H 13470 4805 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 13330 4850 50  0001 C CNN
+F 3 "~" H 13400 4850 50  0001 C CNN
+	1    13400 4850
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR017
 U 1 1 5CF792DA
-P 13250 1550
-F 0 "#PWR017" H 13250 1300 50  0001 C CNN
-F 1 "GND" H 13255 1377 50  0000 C CNN
-F 2 "" H 13250 1550 50  0001 C CNN
-F 3 "" H 13250 1550 50  0001 C CNN
-	1    13250 1550
+P 13200 5000
+F 0 "#PWR017" H 13200 4750 50  0001 C CNN
+F 1 "GND" H 13205 4827 50  0000 C CNN
+F 2 "" H 13200 5000 50  0001 C CNN
+F 3 "" H 13200 5000 50  0001 C CNN
+	1    13200 5000
 	1    0    0    -1  
 $EndComp
 $Comp
 L Connector_Generic:Conn_01x02 Trig_IN_4
 U 1 1 5CF792EB
-P 13900 1000
-F 0 "Trig_IN_4" V 13864 812 50  0000 R CNN
-F 1 "Trig_SMA" V 13773 812 50  0000 R CNN
-F 2 "Connector_Coaxial:SMB_Jack_Vertical" H 13900 1000 50  0001 C CNN
-F 3 "~" H 13900 1000 50  0001 C CNN
-	1    13900 1000
+P 13850 4450
+F 0 "Trig_IN_4" V 13814 4262 50  0000 R CNN
+F 1 "Trig_SMA" V 13723 4262 50  0000 R CNN
+F 2 "Connector_Coaxial:SMB_Jack_Vertical" H 13850 4450 50  0001 C CNN
+F 3 "~" H 13850 4450 50  0001 C CNN
+	1    13850 4450
 	0    -1   -1   0   
 $EndComp
 $Comp
 L Device:R R13
 U 1 1 5CF792F5
-P 14200 1400
-F 0 "R13" H 14270 1446 50  0000 L CNN
-F 1 "10k" H 14270 1355 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 14130 1400 50  0001 C CNN
-F 3 "~" H 14200 1400 50  0001 C CNN
-	1    14200 1400
+P 14150 4850
+F 0 "R13" H 14220 4896 50  0000 L CNN
+F 1 "10k" H 14220 4805 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 14080 4850 50  0001 C CNN
+F 3 "~" H 14150 4850 50  0001 C CNN
+	1    14150 4850
 	1    0    0    -1  
 $EndComp
 $Comp
 L power:GND #PWR018
 U 1 1 5CF792FF
-P 14000 1550
-F 0 "#PWR018" H 14000 1300 50  0001 C CNN
-F 1 "GND" H 14005 1377 50  0000 C CNN
-F 2 "" H 14000 1550 50  0001 C CNN
-F 3 "" H 14000 1550 50  0001 C CNN
-	1    14000 1550
+P 13950 5000
+F 0 "#PWR018" H 13950 4750 50  0001 C CNN
+F 1 "GND" H 13955 4827 50  0000 C CNN
+F 2 "" H 13950 5000 50  0001 C CNN
+F 3 "" H 13950 5000 50  0001 C CNN
+	1    13950 5000
 	1    0    0    -1  
 $EndComp
 Text GLabel 8450 6900 0    50   Input ~ 0
@@ -2077,51 +2078,51 @@ LedOut6
 Text GLabel 8450 3000 0    50   Input ~ 0
 LedOut7
 Wire Wire Line
-	13900 1250 14200 1250
+	13850 4700 14150 4700
 Wire Wire Line
-	14200 1550 14000 1550
-Connection ~ 14000 1550
+	14150 5000 13950 5000
+Connection ~ 13950 5000
 Wire Wire Line
-	14000 1200 14000 1550
+	13950 4650 13950 5000
 Wire Wire Line
-	13250 1200 13250 1550
+	13200 4650 13200 5000
 Wire Wire Line
-	12550 1200 12550 1550
+	12500 4650 12500 5000
 Wire Wire Line
-	11800 1200 11800 1550
+	11750 4650 11750 5000
 Wire Wire Line
-	13450 1550 13250 1550
-Connection ~ 13250 1550
+	13400 5000 13200 5000
+Connection ~ 13200 5000
 Wire Wire Line
-	12750 1550 12550 1550
-Connection ~ 12550 1550
+	12700 5000 12500 5000
+Connection ~ 12500 5000
 Wire Wire Line
-	12000 1550 11800 1550
-Connection ~ 11800 1550
+	11950 5000 11750 5000
+Connection ~ 11750 5000
 Wire Wire Line
-	12000 1250 11700 1250
+	11950 4700 11650 4700
 Wire Wire Line
-	11700 1250 11700 1200
+	11650 4700 11650 4650
 Wire Wire Line
-	12750 1250 12450 1250
+	12700 4700 12400 4700
 Wire Wire Line
-	12450 1250 12450 1200
+	12400 4700 12400 4650
 Wire Wire Line
-	13450 1250 13150 1250
+	13400 4700 13100 4700
 Wire Wire Line
-	13150 1250 13150 1200
+	13100 4700 13100 4650
 Wire Wire Line
-	11700 1350 11700 1250
-Connection ~ 11700 1250
+	11650 4800 11650 4700
+Connection ~ 11650 4700
 Wire Wire Line
-	12450 1350 12450 1250
-Connection ~ 12450 1250
+	12400 4800 12400 4700
+Connection ~ 12400 4700
 Wire Wire Line
-	13150 1350 13150 1250
-Connection ~ 13150 1250
+	13100 4800 13100 4700
+Connection ~ 13100 4700
 Wire Wire Line
-	13900 1200 13900 1250
-Connection ~ 13900 1250
+	13850 4650 13850 4700
+Connection ~ 13850 4700
 Wire Wire Line
-	13900 1250 13900 1350
+	13850 4700 13850 4800
 $EndSCHEMATC
