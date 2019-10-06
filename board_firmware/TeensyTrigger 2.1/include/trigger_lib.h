@@ -9,11 +9,27 @@
 const uint8_t TRIG_IN_PINS[] = {16,17};
 // port C (GPIOC_PDOR/GPIOC_PDIR) -> used for trigger output
 const uint8_t TRIG_OUT_PINS[] = {15,22,23,9,10,13,11,12};
-
 // port D (GPIOD_PDOR/GPIOD_PDIR) -> used for LED output
 const uint8_t LED_OUT_PINS[] = {2,14,7,8,6,20,21,5};
 
-// All below might not be needed or has not been tested...
+
+// Define serial communication commands (shared with matlab)
+const uint_fast16_t DONE = 99;
+const uint_fast16_t DO_NOTHING = 0;
+const uint_fast16_t SET_TRIGGER_CH = 11;
+const uint_fast16_t EXT_TRIGGER = 22;
+const uint_fast16_t STOP_TRIGGER = 23;
+const uint_fast16_t CHECK_CONNECTION = 88;
+const uint_fast16_t ENABLE_INT_TRIGGER = 66;
+const uint_fast16_t DISABLE_INT_TRIGGER = 67;
+
+constexpr uint_fast8_t AOD_PIN = 3;
+constexpr uint_fast8_t CAM_PIN = 2;
+
+
+// All below might not be needed or has not been tested... %%%%%%%%%%%%%%%%%%%%%
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 #define ALL_TRIGGER_HIGH GPIOC_PDOR = 0b11111111; //
 #define ALL_TRIGGER_LOW GPIOC_PDOR = 0b00000000; //
 #define ALL_LED_HIGH GPIOD_PDOR = 0b11111111; //
@@ -29,6 +45,8 @@ const uint8_t LED_OUT_PINS[] = {2,14,7,8,6,20,21,5};
 // PORTS and PIN fun %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #define TRIG_IN_PORT GPIOB_PDIR
+#define TRIG_OUT_PORT GPIOC_PDOR
+#define LED_PORT GPIOD_PDOR
 
 #define TRIG_IN1_HIGH (GPIOB_PDIR & (1UL << 0))
 #define TRIG_IN1_LOW  (GPIOB_PDIR ^ (1UL << 0))
@@ -37,41 +55,17 @@ const uint8_t LED_OUT_PINS[] = {2,14,7,8,6,20,21,5};
 #define TRIG_IN2_HIGH GPIOB_PDIR & (1UL << 1)
 #define TRIG_IN2_LOW GPIOB_PDIR ^ (1UL << 1)
 
-#define TRIG_IN3_HIGH GPIOB_PDIR & (1UL << 3)
-#define TRIG_IN3_LOW GPIOB_PDIR ^ (1UL << 3)
 
-#define TRIG_IN4_HIGH GPIOB_PDIR & (1UL << 2)
-#define TRIG_IN4_LOW GPIOB_PDIR ^ (1UL << 2)
-
-#define TRIG_OUT_PORT GPIOC_PDOR
-#define LED_PORT GPIOD_PDOR
-
-
-// define commands %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#define DO_NOTHING 00
-#define SET_TRIGGER_CH 11
-#define DO_TRIGGER 22
-#define STOP_TRIGGER 23
-#define CHECK_CONNECTION 88
-#define ENABLE_SCOPE_MODE 66
-#define DISABLE_SCOPE 67
-#define DONE 99
 
 // define trigger port bits %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #define DAQ_TRIG 8
 #define US_TRIG 7
 #define ONDA_TRIG 5
 #define EDGE_TRIG 4
-#define DAQ_LED_PIN 3
 #define ALL_TRIG 0
+#define DAQ_LED_PIN 3
   // screwed up wiring there, bit 8 of the LED port isn't connected right...
 
-uint32_t lastCommandCheck;
-
-uint16_t slowMode; // delay in ms or us
-uint16_t triggerPeriod;
-uint16_t nTrigger; // trigger how many times?
-uint32_t triggerCounter;
 uint32_t lastSamplingTime; // used during stage calibration
 
 // Vital Class Definition %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -82,26 +76,33 @@ class TeensyTrigger {
 
     inline void setup_io_pins();
     inline void show_led_welcome();
-    inline uint_fast8_t check_for_serial_command();
-    inline void execute_serial_command();
-    inline void set_trigger_channel();
-    inline void do_trigger();
+    FASTRUN uint_fast8_t check_for_serial_command();
+    FASTRUN void set_trigger_channel();
+    FASTRUN void external_trigger();
+    FASTRUN void stand_alone_trigger();
+    FASTRUN void chen_stand_alone_trigger();
+    FASTRUN void enable_trigger_output(uint_fast8_t triggerBit);
+    FASTRUN void disable_trigger_output(uint_fast8_t triggerBit);
+    // FASTRUN void execute_serial_command();
     //%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     // variables for analog & digital temperature measurements
     const uint_fast16_t COMMAND_CHECK_INTERVALL = 200; // [ms] wait this long before checking for serial
 
     uint8_t trigOutChMask = 0b00000000;
-    uint16_t currentCommand = DO_NOTHING; // for incoming serial data
+    uint_fast16_t currentCommand = DO_NOTHING; // for incoming serial data
     uint8_t triggerOut = US_TRIG;
       // bit 8 = DAQ_TRIG = TRIG 1
       // bit 7 = US_TRIG = TRIG 2
       // bit 5 = ONDA_TRIG = TRIG 3
       // bit 4 = EDGE_TRIG = TRIG 4
-    uint_fast8_t lastTrigState = 0; //
+      // sets trigger output channel
+      // FIXME -> needs to be replaced with proper trigger mask etc..
+    uint_fast8_t lastTrigState = 0;
+      // keeps last external trigger state to detect stage changes
+    uint_fast32_t lastCommandCheck = 0;
 
   private:
 
 };
-
 
 #endif

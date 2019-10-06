@@ -1,15 +1,16 @@
 #ifndef WAIT
 #define WAIT
 
-// wait a few clock cycles
-#define NOP __asm__ __volatile__ ("nop\n\t") // ~6 ns = one clock cycle
-#define WAIT_10_NS NOP; NOP;
-#define WAIT_20_NS NOP; NOP; NOP; NOP;
-#define WAIT_40_NS WAIT_20_NS; WAIT_20_NS;
-#define WAIT_60_NS WAIT_20_NS; WAIT_20_NS; WAIT_20_NS;
-#define WAIT_80_NS WAIT_40_NS; WAIT_40_NS;
-#define WAIT_100_NS WAIT_80_NS; WAIT_20_NS;
-#define WAIT_200_NS WAIT_100_NS; WAIT_100_NS;
-#define WAIT_400_NS WAIT_200_NS; WAIT_200_NS;
+#define NOP __asm__ __volatile__ ("nop\n\t") // one clock cycle ~4.25 ns
+#define NOP_5 NOP; NOP; NOP; NOP; NOP;
+#define NOP_10 NOP_5; NOP_5;
+#define NOP_25 NOP_10; NOP_10; NOP_5;
+#define NOP_50 NOP_25; NOP_25;
+#define NOP_100 NOP_50; NOP_50;
+#define NOP_500 NOP_100; NOP_100; NOP_100; NOP_100; NOP_100;
+#define NOP_1000 NOP_500; NOP_500; NOP_100; NOP_100; NOP_100;
+
+#define WAIT_10_NS NOP; NOP; NOP; NOP;
+#define WAIT_20_NS NOP_10; NOP_10;
 
 #endif

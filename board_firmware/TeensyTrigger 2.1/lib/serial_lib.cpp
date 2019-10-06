@@ -1,4 +1,4 @@
-#include <serial_lib.h> // always required when using platformio
+#include "serial_lib.h"
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 uint16_t serial_read_16bit()
@@ -16,7 +16,22 @@ uint16_t serial_read_16bit_no_wait()
 }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// TODO test/make this
+// uint16_t serial_read_32bit()
+// {
+  // same as serial_read_16bit but not checking for available bytes
+  // used only where speed is critical
+  // return Serial.read() + (Serial.read() << 8);  // read a 16-bit number from 2 bytes
+// }
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void serial_write_16bit(uint16_t writeData){
+  uint8_t outBuffer[2];
+  outBuffer[0] = writeData & 255;
+  outBuffer[1] = (writeData >> 8)  & 255;
+  Serial.write(outBuffer, 2);
+}
+void serial_write_16bit(uint_fast16_t writeData){
   uint8_t outBuffer[2];
   outBuffer[0] = writeData & 255;
   outBuffer[1] = (writeData >> 8)  & 255;
@@ -25,6 +40,15 @@ void serial_write_16bit(uint16_t writeData){
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void serial_write_32bit(uint32_t writeData){
+  uint8_t outBuffer[4];
+  outBuffer[0] = writeData & 255;
+  outBuffer[1] = (writeData >> 1*8)  & 255;
+  outBuffer[2] = (writeData >> 2*8)  & 255;
+  outBuffer[3] = (writeData >> 3*8)  & 255;
+  Serial.write(outBuffer, 4);
+}
+
+void serial_write_32bit(uint_fast32_t writeData){
   uint8_t outBuffer[4];
   outBuffer[0] = writeData & 255;
   outBuffer[1] = (writeData >> 1*8)  & 255;
