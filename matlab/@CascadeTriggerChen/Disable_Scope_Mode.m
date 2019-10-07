@@ -1,9 +1,9 @@
-% function [] = Disable_Scope(AQ)
+% function [] = Disable_Scope_Mode(AQ)
 % Johannes Rebling, (johannesrebling@gmail.com), 2019
 
-function [] = Disable_Scope(CT,timeOut)
+function [] = Disable_Scope_Mode(CT,timeOut)
   if nargin == 1
-    timeOut = 2; % 5 seconds default timeout
+    timeOut = 1; % 5 seconds default timeout
   end
 
   % starts recording of the calibration data in the teensy

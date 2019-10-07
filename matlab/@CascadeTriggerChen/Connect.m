@@ -18,4 +18,5 @@ function [] = Connect(CT)
       CT.VPrintF('\n');
       CT.Verbose_Warn('Opening serial connection failed!\n');
   end
+  CT.Flush_Serial();
 end

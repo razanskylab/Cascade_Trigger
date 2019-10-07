@@ -15,6 +15,7 @@ const uint8_t LED_OUT_PINS[] = {2,14,7,8,6,20,21,5};
 
 // Define serial communication commands (shared with matlab)
 const uint_fast16_t DONE = 99;
+const uint_fast16_t READY_FOR_COMMAND = 98;
 const uint_fast16_t DO_NOTHING = 0;
 const uint_fast16_t SET_TRIGGER_CH = 11;
 const uint_fast16_t EXT_TRIGGER = 22;
@@ -22,6 +23,7 @@ const uint_fast16_t STOP_TRIGGER = 23;
 const uint_fast16_t CHECK_CONNECTION = 88;
 const uint_fast16_t ENABLE_INT_TRIGGER = 66;
 const uint_fast16_t DISABLE_INT_TRIGGER = 67;
+
 
 constexpr uint_fast8_t AOD_PIN = 3;
 constexpr uint_fast8_t CAM_PIN = 2;

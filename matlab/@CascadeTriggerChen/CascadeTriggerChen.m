@@ -1,12 +1,15 @@
 % non functional example class to be used as basis for new hardware interfacing
 % class, as they alls should have similar structure and content
 
-classdef CascadeTriggerAlone < BaseHardwareClass
+classdef CascadeTriggerChen < BaseHardwareClass
   properties
-    prf(1,1) {mustBeNumeric,mustBeNonnegative,mustBeFinite} = 100;
-    triggerMask(1,8) uint16 {mustBeInteger,mustBeNonnegative} = [0,0,0,0,0,0,0,0];
+    prf(1,1) {mustBeInteger,mustBeNonnegative,mustBeFinite} = 100; % [HZ]
+    postAcqDelay(1,1) {mustBeInteger,mustBeNonnegative,mustBeFinite} = 100; % [us]
+    aodTrigger(1,1) {mustBeInteger,mustBeNonnegative,mustBeFinite} = 9; % [us]
+
+    % triggerMask(1,8) uint16 {mustBeInteger,mustBeNonnegative} = [0,0,0,0,0,0,0,0];
       % defines which channels to trigger
-    mode(1,:) char = 'us'; % set function ensures only valid modes are used!
+    % mode(1,:) char = 'us'; % set function ensures only valid modes are used!
   end
 
   % depended properties are calculated from other properties
@@ -46,6 +49,7 @@ classdef CascadeTriggerAlone < BaseHardwareClass
     DISABLE_SCOPE = uint16(67);
     CHECK_CONNECTION = uint16(88);
     DONE = uint16(99);
+    READY_FOR_COMMAND = uint16(98);
 
     % define trigger port bits %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     DAQ_TRIG = uint16(8);
@@ -66,7 +70,7 @@ classdef CascadeTriggerAlone < BaseHardwareClass
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   methods
     % constructor, called when class is created
-    function CT = CascadeTriggerAlone(doConnect)
+    function CT = CascadeTriggerChen(doConnect)
       if nargin < 1
         doConnect = CT.DO_AUTO_CONNECT;
       end
@@ -104,17 +108,6 @@ classdef CascadeTriggerAlone < BaseHardwareClass
       CT.Write_Data(command);
     end
 
-    function [success] = Check_Connection(CT)
-      CT.PrintF('[CT] Checking teensy connection');
-      CT.Write_Command(CT.CHECK_CONNECTION);
-      success = CT.Wait_Done();
-      if success
-        CT.VPrintF('...looking good!\n');
-      else
-        CT.VPrintF('...teensy requires reset!\n');
-      end
-    end
-
     function [] = Write_16Bit(CT,data)
       CT.Write_Command(data); % same as command, but lets not confuse our users...
     end
@@ -143,6 +136,18 @@ classdef CascadeTriggerAlone < BaseHardwareClass
     function [] = Update_Trigger(CT)
       CT.Disable_Trigger();
       CT.Enable_Trigger();
+    end
+
+    function [] = Flush_Serial(CT)
+      tic;
+      nBytes = CT.bytesAvailable;
+      if nBytes
+        CT.VPrintF('[CT] Flushing %i serial port bytes...',nBytes);
+        for iByte = 1:nBytes
+          [~] = readPort(CT.serialPtr, 1);
+        end
+        CT.Done();
+      end
     end
 
     % --------------------------------------------------------------------------
@@ -174,14 +179,6 @@ classdef CascadeTriggerAlone < BaseHardwareClass
 
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   methods % set / get methods
-    function set.mode(CT,inMode)
-      if strcmp(inMode,'all')
-        CT.mode = 'all'; % trigger on all channels at the same time
-      else
-        CT.mode = validate_mode(inMode); % normal triggering
-      end
-    end
-
     function [bytesAvailable] = get.bytesAvailable(CT)
       if CT.isConnected
         numBytesToRead = 0;

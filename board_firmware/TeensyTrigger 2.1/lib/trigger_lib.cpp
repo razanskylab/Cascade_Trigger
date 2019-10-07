@@ -103,13 +103,13 @@ void TeensyTrigger::show_led_welcome(){
   for (int iLed = 0; iLed<8; iLed++)
   {
     digitalWriteFast(LED_OUT_PINS[iLed],HIGH);
-    delay(50);
+    delay(25);
   }
-  delay(200);
+  delay(50);
   LED_PORT = 0b00000000; // enable LEDS based on current trigger mode
-  delay(200);
+  delay(50);
   LED_PORT = 0b11111111; // enable LEDS based on current trigger mode
-  delay(200);
+  delay(50);
   LED_PORT = 0b00000000; // enable LEDS based on current trigger mode
 }
 
@@ -238,18 +238,22 @@ FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
   uint_fast32_t triggerCounter = 0;
   uint_fast8_t doTrigger = true;
 
-
   // uint_fast32_t nTrigger = static_cast<uint_fast32_t>(serial_read_16bit()); // trigger how many times?
   // FIXME => read actual values from matlab
-  uint_fast8_t nTrigger = 9;
-  uint_fast32_t triggerFreq = 10000; // trigger freq. in Hz
-  uint_fast32_t postAcqDelay = 10;
+  // uint_fast32_t nTrigger = static_cast<uint_fast32_t>(serial_read_16bit()); // trigger how many times?
+  // uint_fast32_t triggerFreq = static_cast<uint_fast32_t>(serial_read_16bit()); // trigger freq. in Hz
+  // uint_fast32_t postAcqDelay = static_cast<uint_fast32_t>(serial_read_16bit());
+  uint16_t nTrigger = serial_read_16bit(); // trigger how many times?
+  uint16_t triggerFreq = serial_read_16bit(); // trigger freq. in Hz
+  uint16_t postAcqDelay = serial_read_16bit();
+  // uint16_t nTrigger = 10; // trigger how many times?
+  // uint16_t triggerFreq = 10000; // trigger freq. in Hz
+  // uint16_t postAcqDelay = 10;
     // delay after acq. is done for camera to prepare for next frame
   uint_fast32_t triggerPeriod = 1/(triggerFreq*1E-9); // trigger period in ns
   setup_nano_delay(triggerPeriod);
 
   while (doTrigger){
-    noInterrupts();
     enable_trigger_output(CAM_PIN);
     for (uint_fast8_t iTrig = 0; iTrig < nTrigger; iTrig++) {
       enable_trigger_output(AOD_PIN);
@@ -258,7 +262,6 @@ FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
       wait_nano_delay();
     }
     disable_trigger_output(CAM_PIN);
-    interrupts();
     triggerCounter++;
     delayMicroseconds(postAcqDelay);
     // check if we got a new serial command to stop triggering

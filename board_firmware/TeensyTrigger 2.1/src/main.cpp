@@ -9,10 +9,6 @@
 
 // do_trigger() has fixxed 1 us trigger length, make it at least variable
 
-
-// 180
-
-
 TeensyTrigger MyTrig;
 
 void setup() {
@@ -23,7 +19,7 @@ void setup() {
 void loop() {
   while(true){ // loop is slower than while(true)
     // here starts our state machine
-    MyTrig.chen_stand_alone_trigger();
+    MyTrig.check_for_serial_command();
     switch (MyTrig.currentCommand) {
       // -----------------------------------------------------------------------
       case DO_NOTHING:
@@ -45,7 +41,7 @@ void loop() {
         break;
 
       case CHECK_CONNECTION:
-        serial_write_16bit(DONE); // send the "ok, we are done" command
+        serial_write_16bit(READY_FOR_COMMAND); // send the "ok, we are done" command
         MyTrig.currentCommand = DO_NOTHING; // exit state machine
         break;
 
