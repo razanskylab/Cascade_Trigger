@@ -7,6 +7,13 @@ uint16_t serial_read_16bit()
   return Serial.read() + (Serial.read() << 8);  // read a 16-bit number from 2 bytes
 }
 
+uint32_t serial_read_32bit()
+{
+  serial_wait_four_bytes(); // wait for 4 bytes
+  return (Serial.read() + (Serial.read() << 8) +
+    (Serial.read() << 16) + (Serial.read() << 24));  // read a 16-bit number from 2 bytes
+}
+
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 uint16_t serial_read_16bit_no_wait()
 {
@@ -14,15 +21,6 @@ uint16_t serial_read_16bit_no_wait()
   // used only where speed is critical
   return Serial.read() + (Serial.read() << 8);  // read a 16-bit number from 2 bytes
 }
-
-// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-// TODO test/make this
-// uint16_t serial_read_32bit()
-// {
-  // same as serial_read_16bit but not checking for available bytes
-  // used only where speed is critical
-  // return Serial.read() + (Serial.read() << 8);  // read a 16-bit number from 2 bytes
-// }
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 void serial_write_16bit(uint16_t writeData){
@@ -61,6 +59,11 @@ void serial_write_32bit(uint_fast32_t writeData){
 void serial_wait_next_command(){
   // wait for 2 bytes to be available
   while(Serial.available() < 2){}
+}
+
+void serial_wait_four_bytes(){
+  // wait for 2 bytes to be available
+  while(Serial.available() < 4){}
 }
 
 // define general functions here

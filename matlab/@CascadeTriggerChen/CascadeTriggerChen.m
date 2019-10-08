@@ -100,13 +100,7 @@ classdef CascadeTriggerChen < BaseHardwareClass
   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
   methods % short methods, which are not worth putting in a file
 
-    function [] = Write_Command(CT,command)
-      if ~isa(command,'uint16')
-        error('Counter commands must be uint16!');
-      end
-      command = typecast(command, 'uint8'); % commands send as 2 byte
-      CT.Write_Data(command);
-    end
+
 
     function [] = Write_16Bit(CT,data)
       CT.Write_Command(data); % same as command, but lets not confuse our users...
