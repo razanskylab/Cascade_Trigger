@@ -234,6 +234,7 @@ FASTRUN void TeensyTrigger::stand_alone_trigger(){
 
 // custom trigger function for chen to trigger AOD and camera only -------------
 FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
+
   uint_fast32_t lastCommandCheck = 0;
   uint_fast32_t triggerCounter = 0;
   uint_fast8_t doTrigger = true;
@@ -241,17 +242,14 @@ FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
   uint_fast32_t nTrigger = serial_read_32bit(); // trigger how many times?
   uint_fast32_t triggerFreq = serial_read_32bit(); // trigger freq. in Hz
   uint_fast32_t postAcqDelay = serial_read_32bit();
-  // uint16_t nTrigger = serial_read_16bit(); // trigger how many times?
-  // uint16_t triggerFreq = serial_read_16bit(); // trigger freq. in Hz
-  // uint16_t postAcqDelay = serial_read_16bit();
 
-    // delay after acq. is done for camera to prepare for next frame
+  // delay after acq. is done for camera to prepare for next frame
   uint_fast32_t triggerPeriod = 1/(triggerFreq*1E-9); // trigger period in ns
   // we wait 50% of the trigger period on, then of, so we need half the actual period
   triggerPeriod = triggerPeriod/2;
   setup_nano_delay(triggerPeriod);
-
   while (doTrigger){
+    LED_PORT = 0b00000110; // enabel Cam and AOD LEDs
     for (uint_fast8_t iTrig = 0; iTrig < nTrigger; iTrig++) {
       GPIOC_PDOR = 0b00000110;
       wait_nano_delay();
@@ -259,6 +257,7 @@ FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
       wait_nano_delay();
     }
     GPIOC_PDOR = 0b00000000;
+    LED_PORT = 0b00000000; // disable all LEDs
     triggerCounter++;
     delayMicroseconds(postAcqDelay);
     // check if we got a new serial command to stop triggering
@@ -276,8 +275,91 @@ FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
   } // while (doTrigger)
   serial_write_16bit(DONE); // send the "ok, we are done" command
   serial_write_32bit(triggerCounter);
-  LED_PORT = 0b00000000; // disable LEDs
-  digitalWriteFast(DAQ_LED_PIN, LOW);
+  this->currentCommand = DO_NOTHING; // exit state machine
+}
+
+// custom trigger function for chen to trigger AOD and camera only -------------
+FASTRUN void TeensyTrigger::chen_cascade_trigger(){
+
+  trigOutChMask = 0b00000000;
+  uint_fast32_t cycleTrigger = 0;
+  uint_fast32_t nCycle = 0; // keeps track of completed triggering cycles
+  uint_fast32_t nTrigger = 0; // keeps track of triggering during
+  uint_fast8_t currentTrigState = 0;
+  uint_fast8_t lastTrigState = 0;
+  uint_fast8_t waitForTrigger = 1;
+  uint_fast8_t doTrigger = 0;
+  uint_fast32_t lastCommandCheck = 0;
+
+  uint_fast32_t daqDelay = serial_read_32bit(); // for now in us, could be changed
+  uint_fast32_t trigDuration = serial_read_32bit(); // for now in us, could be changed
+  uint_fast32_t camWait = serial_read_32bit(); // trigger cam ever n shots
+  uint_fast32_t nBaselineWait = serial_read_32bit();
+    // wait nshots before starting stimulus
+  uint_fast32_t nRecordLength = serial_read_32bit();
+    // total number of shots for which to record data
+  uint_fast32_t nCycleLength = serial_read_32bit();
+    // total number of shots after which whole cylce starts again
+
+  while (waitForTrigger){
+    // FIXME - wait for next trigger signal here
+    currentTrigState = TRIG_IN1;
+    if (currentTrigState != lastTrigState){
+      doTrigger = (currentTrigState & !lastTrigState);
+      lastTrigState = currentTrigState;
+    }
+
+    if (doTrigger){
+      delayMicroseconds(daqDelay);
+      trigOutChMask = 0b00000000;
+      trigOutChMask |= (1UL << (DAQ_BIT-1)); // always enable DAQ trigger pin
+
+      // check if we need to enable camera trigger as well
+      if (cycleTrigger % camWait == 0)
+        trigOutChMask |= (1UL << (ANDOR_BIT-1)); // enable cam trigger ever n-shots
+      // check if we need to activate the stimulus trigger
+      if (cycleTrigger == nBaselineWait)
+        trigOutChMask |= (1UL << (STIM_BIT-1)); // enable stim trigger
+
+      // check if we need to activate the blocking trigger
+      if (cycleTrigger >= nRecordLength)
+        GPIOC_PDOR = 0b00001000;
+      else {
+        GPIOC_PDOR = trigOutChMask;
+          // writes trigger mask to output port, thus triggers
+        delayMicroseconds(trigDuration);
+        GPIOC_PDOR = 0b00000000;
+      }
+
+      // keep track of how often we have triggered
+      if (cycleTrigger == nCycleLength){
+        cycleTrigger = 0; // disable all triggers here
+        nCycle++;
+      }
+      else
+        cycleTrigger++; // current cylce trigger counter
+
+      nTrigger++; // overall trigger / shot counter
+      // cycleTrigger++; // current cylce trigger counter
+      // check if we got a new serial command to stop triggering
+      // COMMAND_CHECK_INTERVALL is high, so we only check once in a while
+      doTrigger = 0;
+    } // if do trigger
+    LED_PORT = trigOutChMask;
+    if((millis()-lastCommandCheck) >= COMMAND_CHECK_INTERVALL)
+    {
+      lastCommandCheck = millis();
+      if (Serial.available() >= 2)
+      {
+        this->currentCommand = serial_read_16bit_no_wait();
+        if (this->currentCommand == DISABLE_CASCADE_TRIGGER)
+          waitForTrigger = false;
+      }
+    }
+  } // while (waitForTrigger)
+  serial_write_16bit(DONE); // send the "ok, we are done" command
+  serial_write_32bit(nTrigger);
+  serial_write_32bit(nCycle);
   this->currentCommand = DO_NOTHING; // exit state machine
 }
 
@@ -290,40 +372,3 @@ FASTRUN void TeensyTrigger::enable_trigger_output(uint_fast8_t triggerBit){
 FASTRUN void TeensyTrigger::disable_trigger_output(uint_fast8_t triggerBit){
   TRIG_OUT_PORT &= ~(1UL << (triggerBit-1));
 }
-
-
-// check for new command -------------------------------------------------------
-// void TeensyTrigger::execute_serial_command(){
-//   // here starts our state machine
-//   switch (this->currentCommand) {
-//     // -----------------------------------------------------------------------
-//     case DO_NOTHING:
-//       break;
-//
-//     // -----------------------------------------------------------------------
-//     case SET_TRIGGER_CH:
-//       this->set_trigger_channel();
-//       break;
-//
-//     // -----------------------------------------------------------------------
-//     case EXT_TRIGGER:
-//       this->external_trigger();
-//       break;
-//
-//     // -----------------------------------------------------------------------
-//     case ENABLE_INT_TRIGGER:
-//       this->stand_alone_trigger();
-//       break;
-//
-//     case CHECK_CONNECTION:
-//       serial_write_16bit(DONE); // send the "ok, we are done" command
-//       this->currentCommand = DO_NOTHING; // exit state machine
-//       break;
-//
-//     // -----------------------------------------------------------------------
-//     default:
-//       // statements
-//       this->currentCommand = DO_NOTHING; // exit state machine
-//       break;
-//   }
-// }

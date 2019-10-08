@@ -39,6 +39,10 @@ void loop() {
       case ENABLE_INT_TRIGGER:
         MyTrig.chen_stand_alone_trigger();
         break;
+      // -----------------------------------------------------------------------
+      case ENABLE_CASCADE_TRIGGER:
+        MyTrig.chen_cascade_trigger();
+        break;
 
       case CHECK_CONNECTION:
         serial_write_16bit(READY_FOR_COMMAND); // send the "ok, we are done" command

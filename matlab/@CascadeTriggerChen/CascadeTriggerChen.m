@@ -7,9 +7,12 @@ classdef CascadeTriggerChen < BaseHardwareClass
     postAcqDelay(1,1) {mustBeInteger,mustBeNonnegative,mustBeFinite} = 100; % [us]
     aodTrigger(1,1) {mustBeInteger,mustBeNonnegative,mustBeFinite} = 9; % [us]
 
-    % triggerMask(1,8) uint16 {mustBeInteger,mustBeNonnegative} = [0,0,0,0,0,0,0,0];
-      % defines which channels to trigger
-    % mode(1,:) char = 'us'; % set function ensures only valid modes are used!
+    daqDelay(1,1) uint32 {mustBeInteger,mustBeNonnegative,mustBeFinite} = 3;
+    trigDuration(1,1) uint32 {mustBeInteger,mustBeNonnegative,mustBeFinite} = 5;
+    camWait(1,1) uint32 {mustBeInteger,mustBeNonnegative,mustBeFinite} = 4;
+    nBaselineWait(1,1) uint32 {mustBeInteger,mustBeNonnegative,mustBeFinite} = 20;
+    nRecordLength(1,1) uint32 {mustBeInteger,mustBeNonnegative,mustBeFinite} = 40;
+    nCycleLength(1,1) uint32 {mustBeInteger,mustBeNonnegative,mustBeFinite} = 80;
   end
 
   % depended properties are calculated from other properties
@@ -47,6 +50,8 @@ classdef CascadeTriggerChen < BaseHardwareClass
     STOP_TRIGGER = uint16(23);
     ENABLE_SCOPE_MODE = uint16(66);
     DISABLE_SCOPE = uint16(67);
+    ENABLE_CASCADE_TRIGGER = uint16(68);
+    DISABLE_CASCADE_TRIGGER = uint16(69);
     CHECK_CONNECTION = uint16(88);
     DONE = uint16(99);
     READY_FOR_COMMAND = uint16(98);
