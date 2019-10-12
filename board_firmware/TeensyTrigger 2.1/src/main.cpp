@@ -12,8 +12,8 @@
 TeensyTrigger MyTrig;
 
 void setup() {
-  setup_serial();
   MyTrig.setup_io_pins();
+  setup_serial();
 }
 
 void loop() {
@@ -23,6 +23,7 @@ void loop() {
     switch (MyTrig.currentCommand) {
       // -----------------------------------------------------------------------
       case DO_NOTHING:
+        MyTrig.do_nothing();
         break;
 
       // -----------------------------------------------------------------------

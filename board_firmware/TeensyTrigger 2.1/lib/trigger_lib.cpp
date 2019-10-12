@@ -90,7 +90,7 @@ void TeensyTrigger::setup_io_pins(){
   pinMode(TRIG_IN_PINS[0],INPUT);
   pinMode(TRIG_IN_PINS[1],INPUT);
   // set 8 trigger outputs and corresponding LEDs as digital output pins
-  for (int i=0; i<8; i++){
+  for (uint8_t i=0; i<8; i++){
     pinMode(TRIG_OUT_PINS[i],OUTPUT);
     pinMode(LED_OUT_PINS[i],OUTPUT);
   }
@@ -99,18 +99,48 @@ void TeensyTrigger::setup_io_pins(){
 }
 
 // make led blink --------------------------------------------------------------
-void TeensyTrigger::show_led_welcome(){
-  for (int iLed = 0; iLed<8; iLed++)
+void TeensyTrigger::set_all_led_brightness(uint8_t ledPower){
+  for (int iLed = 0; iLed<5; iLed++)
   {
-    digitalWriteFast(LED_OUT_PINS[iLed],HIGH);
-    delay(25);
+    analogWrite(LED_OUT_PINS[iLed], ledPower);
   }
-  delay(50);
-  LED_PORT = 0b00000000; // enable LEDS based on current trigger mode
-  delay(50);
-  LED_PORT = 0b11111111; // enable LEDS based on current trigger mode
-  delay(50);
-  LED_PORT = 0b00000000; // enable LEDS based on current trigger mode
+  analogWrite(LED_OUT_PINS[6],ledPower);
+}
+
+// make led blink --------------------------------------------------------------
+void TeensyTrigger::do_nothing(){
+  if((millis()-lastNothingCheck) >= 50)
+  {
+    lastNothingCheck = millis();
+    if ((ledBrightness < 200) && fadeIn)
+      ledBrightness++;
+    else if (ledBrightness == 200){
+      fadeIn = 0;
+      ledBrightness--;
+    }
+    else if (ledBrightness == 0){
+      fadeIn = true;
+      ledBrightness++;
+    }
+    else
+      ledBrightness--;
+    set_all_led_brightness(ledBrightness);
+  }
+}
+
+// make led blink --------------------------------------------------------------
+void TeensyTrigger::show_led_welcome(){
+  for (uint8_t i = 0; i < 3; i++) { // blink 3 times
+    for (uint8_t iPower = 0; iPower <255; iPower++){
+      this->set_all_led_brightness(iPower);
+      delay(1);
+    }
+    for (uint8_t iPower = 255; iPower > 0; iPower--){
+      this->set_all_led_brightness(iPower);
+      delay(2);
+    }
+  }
+  LED_PORT = 0b00000000; // disable all LEDs for now
 }
 
 // check for new command -------------------------------------------------------
@@ -234,7 +264,7 @@ FASTRUN void TeensyTrigger::stand_alone_trigger(){
 
 // custom trigger function for chen to trigger AOD and camera only -------------
 FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
-
+  set_all_led_brightness(0);
   uint_fast32_t lastCommandCheck = 0;
   uint_fast32_t triggerCounter = 0;
   uint_fast8_t doTrigger = true;
@@ -248,8 +278,8 @@ FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
   // we wait 50% of the trigger period on, then of, so we need half the actual period
   triggerPeriod = triggerPeriod/2;
   setup_nano_delay(triggerPeriod);
+  LED_PORT = 0b01010000; // enabel Cam and AOD LEDs
   while (doTrigger){
-    LED_PORT = 0b00000110; // enabel Cam and AOD LEDs
     for (uint_fast8_t iTrig = 0; iTrig < nTrigger; iTrig++) {
       GPIOC_PDOR = 0b00000110;
       wait_nano_delay();
@@ -257,7 +287,6 @@ FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
       wait_nano_delay();
     }
     GPIOC_PDOR = 0b00000000;
-    LED_PORT = 0b00000000; // disable all LEDs
     triggerCounter++;
     delayMicroseconds(postAcqDelay);
     // check if we got a new serial command to stop triggering
@@ -273,6 +302,8 @@ FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
       }
     }
   } // while (doTrigger)
+  LED_PORT = 0b00000000; // disable all LEDs
+  ledBrightness = 0;
   serial_write_16bit(DONE); // send the "ok, we are done" command
   serial_write_32bit(triggerCounter);
   this->currentCommand = DO_NOTHING; // exit state machine
@@ -280,7 +311,7 @@ FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
 
 // custom trigger function for chen to trigger AOD and camera only -------------
 FASTRUN void TeensyTrigger::chen_cascade_trigger(){
-
+  set_all_led_brightness(0);
   trigOutChMask = 0b00000000;
   uint_fast32_t cycleTrigger = 0;
   uint_fast32_t nCycle = 0; // keeps track of completed triggering cycles
@@ -312,20 +343,28 @@ FASTRUN void TeensyTrigger::chen_cascade_trigger(){
     if (doTrigger){
       delayMicroseconds(daqDelay);
       trigOutChMask = 0b00000000;
+      ledOutMask = 0b00000000;
       trigOutChMask |= (1UL << (DAQ_BIT-1)); // always enable DAQ trigger pin
-
+      ledOutMask |= (1UL << (1-1)); // first LED on
       // check if we need to enable camera trigger as well
-      if (cycleTrigger % camWait == 0)
+      if (cycleTrigger % camWait == 0){
         trigOutChMask |= (1UL << (ANDOR_BIT-1)); // enable cam trigger ever n-shots
+        ledOutMask |= (1UL << (2-1)); // 2nd LED on
+      }
       // check if we need to activate the stimulus trigger
-      if (cycleTrigger == nBaselineWait)
+      if (cycleTrigger == nBaselineWait){
         trigOutChMask |= (1UL << (STIM_BIT-1)); // enable stim trigger
+        ledOutMask |= (1UL << (3-1)); // 3rd LED on
+      }
 
       // check if we need to activate the blocking trigger
-      if (cycleTrigger >= nRecordLength)
-        GPIOC_PDOR = 0b00001000;
+      if (cycleTrigger >= nRecordLength){
+        GPIOC_PDOR = 0b00001000; // activate block, disable rest
+        LED_PORT = 0b00001000;
+      }
       else {
         GPIOC_PDOR = trigOutChMask;
+        LED_PORT = ledOutMask;
           // writes trigger mask to output port, thus triggers
         delayMicroseconds(trigDuration);
         GPIOC_PDOR = 0b00000000;
@@ -345,7 +384,6 @@ FASTRUN void TeensyTrigger::chen_cascade_trigger(){
       // COMMAND_CHECK_INTERVALL is high, so we only check once in a while
       doTrigger = 0;
     } // if do trigger
-    LED_PORT = trigOutChMask;
     if((millis()-lastCommandCheck) >= COMMAND_CHECK_INTERVALL)
     {
       lastCommandCheck = millis();
@@ -357,6 +395,7 @@ FASTRUN void TeensyTrigger::chen_cascade_trigger(){
       }
     }
   } // while (waitForTrigger)
+  ledBrightness = 0;
   serial_write_16bit(DONE); // send the "ok, we are done" command
   serial_write_32bit(nTrigger);
   serial_write_32bit(nCycle);

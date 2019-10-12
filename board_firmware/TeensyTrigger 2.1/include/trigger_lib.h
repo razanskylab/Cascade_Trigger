@@ -83,6 +83,9 @@ class TeensyTrigger {
 
     inline void setup_io_pins();
     inline void show_led_welcome();
+    inline void set_all_led_brightness(uint8_t ledPower);
+    inline void do_nothing();
+
     FASTRUN uint_fast8_t check_for_serial_command();
     FASTRUN void set_trigger_channel();
     FASTRUN void external_trigger();
@@ -98,6 +101,7 @@ class TeensyTrigger {
     const uint_fast16_t COMMAND_CHECK_INTERVALL = 200; // [ms] wait this long before checking for serial
 
     uint8_t trigOutChMask = 0b00000000;
+    uint8_t ledOutMask = 0b00000000;
     uint_fast16_t currentCommand = DO_NOTHING; // for incoming serial data
     uint8_t triggerOut = US_TRIG;
       // bit 8 = DAQ_TRIG = TRIG 1
@@ -109,6 +113,9 @@ class TeensyTrigger {
     uint_fast8_t lastTrigState = 0;
       // keeps last external trigger state to detect stage changes
     uint_fast32_t lastCommandCheck = 0;
+    uint8_t ledBrightness = 0; // use in do nothing to fade LEDs
+    uint8_t fadeIn = 1; // getting brighter or darker
+    uint_fast32_t lastNothingCheck = 0; // used in do nothing to fade leds
 
   private:
 
