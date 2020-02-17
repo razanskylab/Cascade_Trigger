@@ -1,2 +1,4 @@
 **/.pioenvs
 **/.pio
+
+board_firmware/TeensyTrigger 2.1/.vscode/

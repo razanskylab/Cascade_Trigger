@@ -14,9 +14,11 @@ function [] = Connect(CT)
       % read back identifier to make sure we have a working connection
       % TODO
       CT.Done();
-    catch me
+    catch ME
       CT.VPrintF('\n');
       CT.Verbose_Warn('Opening serial connection failed!\n');
+      rethrow(ME);
+    end
   end
   CT.Flush_Serial();
 end

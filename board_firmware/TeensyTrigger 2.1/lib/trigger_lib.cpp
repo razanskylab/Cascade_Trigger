@@ -94,7 +94,6 @@ void TeensyTrigger::setup_io_pins(){
     pinMode(TRIG_OUT_PINS[i],OUTPUT);
     pinMode(LED_OUT_PINS[i],OUTPUT);
   }
-  pinMode(DAQ_LED_PIN,OUTPUT); // NOTE note sure why we need this...
   this->show_led_welcome();
 }
 
@@ -154,114 +153,6 @@ FASTRUN uint_fast8_t TeensyTrigger::check_for_serial_command(){
     return 0;
 }
 
-// check for new command -------------------------------------------------------
-FASTRUN void TeensyTrigger::set_trigger_channel(){
-  // FIXME uncomment this!
-  triggerOut = static_cast<uint8_t>(serial_read_16bit());
-  if (triggerOut == ALL_TRIG){
-    trigOutChMask = 0b11111111;
-  }
-  else {
-    trigOutChMask = 0b00000000;
-    trigOutChMask |= (1UL << (DAQ_TRIG-1)); // always tigger DAQ
-    trigOutChMask |= (1UL << (triggerOut-1)); // trigger US or Onda or Dye
-  }
-  // write back what we just did as a way of error checking
-  serial_write_16bit(static_cast<uint16_t>(trigOutChMask));
-  serial_write_16bit(static_cast<uint16_t>(triggerOut));
-  serial_write_16bit(DONE); // send the "ok, we are done" command
-  currentCommand = DO_NOTHING; // no need to send extra command?
-}
-
-// trigger cascade following external trigger ----------------------------------
-FASTRUN void TeensyTrigger::external_trigger(){
-  uint_fast32_t lastCommandCheck = 0;
-  uint_fast8_t doTrigger = true;
-  // set static LEDS
-  digitalWriteFast(DAQ_LED_PIN, HIGH);
-  LED_PORT = trigOutChMask; // enable LEDS based on current trigger mode
-
-  while(doTrigger)
-  {
-    // triggers on rising and falling flank
-    // FIXME -> change this or make it optional!!!
-    if (TRIG_IN1 != lastTrigState){
-      TRIG_OUT_PORT = trigOutChMask; // enable triggers as prev. defined
-      lastTrigState = !lastTrigState;
-      delayMicroseconds(1);
-      TRIG_OUT_PORT = 0b00000000; // disable all trigger
-    }
-
-    // check if we got a new serial command to stop triggering
-    // COMMAND_CHECK_INTERVALL is high, so we only check once in a while
-    if((millis()-lastCommandCheck) >= COMMAND_CHECK_INTERVALL)
-    {
-      lastCommandCheck = millis();
-      check_for_serial_command();
-      if (currentCommand == STOP_TRIGGER)
-        doTrigger = false;
-    }
-  }
-  LED_PORT = 0b00000000; // disable LEDs
-  digitalWriteFast(DAQ_LED_PIN, LOW);
-  currentCommand = DO_NOTHING; // exit state machine
-}
-
-// check for new command -------------------------------------------------------
-FASTRUN void TeensyTrigger::stand_alone_trigger(){
-  uint16_t slowMode = serial_read_16bit(); // delay in ms or us
-  uint16_t triggerPeriod = serial_read_16bit();
-  uint_fast32_t nTrigger = static_cast<uint_fast32_t>(serial_read_16bit()); // trigger how many times?
-  uint_fast32_t lastCommandCheck = 0;
-  uint_fast32_t triggerCounter = 0; // reset trigger counter
-  uint_fast8_t doTrigger = true;
-  // lastSamplingTime = 0;
-
-  while (doTrigger)
-  {
-    // wait for next trigger point, we do this at least once!
-    if (slowMode){
-      while((millis()-lastSamplingTime)<triggerPeriod){};
-      lastSamplingTime = millis();
-    }
-    else{
-      while((micros()-lastSamplingTime)<triggerPeriod){};
-      lastSamplingTime = micros();
-    }
-
-    // acutal triggering happens here, but using trigger ports
-    TRIG_OUT_PORT = this->trigOutChMask; // enable triggers as prev. defined
-    delayMicroseconds(1);
-    TRIG_OUT_PORT = 0b00000000; // disable all trigger
-    triggerCounter++;
-
-    // if nTrigger = 0 we trigger indefinately
-    if (nTrigger && (triggerCounter >= nTrigger)){
-      doTrigger = false;
-    }
-
-    // check if we got a new serial command to stop triggering
-    // COMMAND_CHECK_INTERVALL is high, so we only check once in a while
-    if((millis()-lastCommandCheck) >= COMMAND_CHECK_INTERVALL)
-    {
-      lastCommandCheck = millis();
-      if (Serial.available() >= 2)
-      {
-        this->currentCommand = serial_read_16bit_no_wait();
-        if (this->currentCommand == DISABLE_INT_TRIGGER)
-        {
-          doTrigger = false;
-        }
-      }
-    }
-  }
-  serial_write_16bit(DONE); // send the "ok, we are done" command
-  serial_write_32bit(triggerCounter);
-  LED_PORT = 0b00000000; // disable LEDs
-  digitalWriteFast(DAQ_LED_PIN, LOW);
-  this->currentCommand = DO_NOTHING; // exit state machine
-}
-
 // custom trigger function for chen to trigger AOD and camera only -------------
 FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
   set_all_led_brightness(0);
@@ -269,25 +160,48 @@ FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
   uint_fast32_t triggerCounter = 0;
   uint_fast8_t doTrigger = true;
 
-  uint_fast32_t nTrigger = serial_read_32bit(); // trigger how many times?
-  uint_fast32_t triggerFreq = serial_read_32bit(); // trigger freq. in Hz
+  // prime card, seems NI needs this
+  uint_fast32_t nPreTrigger = serial_read_32bit();
+  // freq. of pre trigger (using 50% duty cycle)
+  uint_fast32_t preTriggerFreq = serial_read_32bit();
+  // trigger how many times?
+  uint_fast32_t nTrigger = serial_read_32bit(); 
+  // trigger freq. in Hz
+  uint_fast32_t triggerFreq = serial_read_32bit(); 
   uint_fast32_t postAcqDelay = serial_read_32bit();
+  uint_fast32_t triggerPeriod = 0; // trigger period in ns
 
-  // delay after acq. is done for camera to prepare for next frame
-  uint_fast32_t triggerPeriod = 1/(triggerFreq*1E-9); // trigger period in ns
+  GPIOC_PDOR = 0b00000000; // all trigger pins low
+  LED_PORT = 0b01010000; // enabel Cam and AOD LEDs
+  // we pre trigger n-times %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+  triggerPeriod = 1 / (preTriggerFreq * 1E-9); // trigger period in ns
+  // we wait 50% of the trigger period on, then of, so we need half the actual period
+  triggerPeriod = triggerPeriod / 2;
+  setup_nano_delay(triggerPeriod);
+  for (uint_fast8_t iTrig = 0; iTrig < nPreTrigger; iTrig++)
+  {
+    GPIOC_PDOR = 0b00000100; // AOD * PCO high
+    wait_nano_delay();
+    GPIOC_PDOR = 0b00000000; // PCO only high
+    wait_nano_delay(); 
+  }
+  GPIOC_PDOR = 0b00000000; // all trigger pins low
+
+  // now we do the actual triggering to acquire data %%%%%%%%%%%%%%%%%%%%%%%%%%%
+  triggerPeriod = 1/(triggerFreq*1E-9); // trigger period in ns
   // we wait 50% of the trigger period on, then of, so we need half the actual period
   triggerPeriod = triggerPeriod/2;
   setup_nano_delay(triggerPeriod);
-  LED_PORT = 0b01010000; // enabel Cam and AOD LEDs
   while (doTrigger){
     for (uint_fast8_t iTrig = 0; iTrig < nTrigger; iTrig++) {
-      GPIOC_PDOR = 0b00000110;
+      GPIOC_PDOR = 0b00000110; // AOD * PCO high
       wait_nano_delay();
-      GPIOC_PDOR = 0b00000010;
+      GPIOC_PDOR = 0b00000010; // PCO only high
       wait_nano_delay();
     }
-    GPIOC_PDOR = 0b00000000;
+    GPIOC_PDOR = 0b00000000; // all trigger pins low
     triggerCounter++;
+    // delay after acq. is done for camera to prepare for next frame
     delayMicroseconds(postAcqDelay);
     // check if we got a new serial command to stop triggering
     // COMMAND_CHECK_INTERVALL is high, so we only check once in a while
@@ -302,6 +216,7 @@ FASTRUN void TeensyTrigger::chen_stand_alone_trigger(){
       }
     }
   } // while (doTrigger)
+
   LED_PORT = 0b00000000; // disable all LEDs
   ledBrightness = 0;
   serial_write_16bit(DONE); // send the "ok, we are done" command
@@ -336,7 +251,8 @@ FASTRUN void TeensyTrigger::chen_cascade_trigger(){
     // FIXME - wait for next trigger signal here
     currentTrigState = TRIG_IN1;
     if (currentTrigState != lastTrigState){
-      doTrigger = (currentTrigState & !lastTrigState);
+      // check for rising flank
+      doTrigger = (currentTrigState & !lastTrigState); 
       lastTrigState = currentTrigState;
     }
 
@@ -400,14 +316,4 @@ FASTRUN void TeensyTrigger::chen_cascade_trigger(){
   serial_write_32bit(nTrigger);
   serial_write_32bit(nCycle);
   this->currentCommand = DO_NOTHING; // exit state machine
-}
-
-
-// enable_trigger_output -------------------------------------------------------
-FASTRUN void TeensyTrigger::enable_trigger_output(uint_fast8_t triggerBit){
-  TRIG_OUT_PORT |= (1UL << (triggerBit-1));
-}
-// disable_trigger_output -------------------------------------------------------
-FASTRUN void TeensyTrigger::disable_trigger_output(uint_fast8_t triggerBit){
-  TRIG_OUT_PORT &= ~(1UL << (triggerBit-1));
 }

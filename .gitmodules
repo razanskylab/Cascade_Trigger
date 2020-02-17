@@ -1,0 +1,9 @@
+[submodule "matlab\\submodules\\BHC"]
+	path = matlab\\submodules\\BHC
+	url = https://github.com/razanskylab/BaseHardwareClass
+[submodule "matlab\\submodules\\MatlabUtilities"]
+	path = matlab\\submodules\\MatlabUtilities
+	url = https://github.com/razanskylab/MatlabUtilities
+[submodule "matlab\\submodules\\Mex_C_Serial_Interface"]
+	path = matlab\\submodules\\Mex_C_Serial_Interface
+	url = https://github.com/razanskylab/Mex_C_Serial_Interface

@@ -15,8 +15,6 @@ const uint8_t LED_OUT_PINS[] = {2,14,7,8,6,20,21,5};
 
 // Define serial communication commands (shared with matlab)
 const uint_fast16_t DO_NOTHING = 0;
-const uint_fast16_t SET_TRIGGER_CH = 11;
-const uint_fast16_t EXT_TRIGGER = 22;
 const uint_fast16_t STOP_TRIGGER = 23;
 const uint_fast16_t ENABLE_INT_TRIGGER = 66;
 const uint_fast16_t DISABLE_INT_TRIGGER = 67;
@@ -62,20 +60,7 @@ constexpr uint_fast8_t FAST_CAM_BIT = 2; // ch 6
 #define TRIG_IN2_HIGH GPIOB_PDIR & (1UL << 1)
 #define TRIG_IN2_LOW GPIOB_PDIR ^ (1UL << 1)
 
-
-
-// define trigger port bits %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#define DAQ_TRIG 8
-#define US_TRIG 7
-#define ONDA_TRIG 5
-#define EDGE_TRIG 4
-#define ALL_TRIG 0
-#define DAQ_LED_PIN 3
-  // screwed up wiring there, bit 8 of the LED port isn't connected right...
-
-uint32_t lastSamplingTime; // used during stage calibration
-
-// Vital Class Definition %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+// TeensyTrigger Class Definition %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 class TeensyTrigger {
   public:
     inline TeensyTrigger();
@@ -87,11 +72,6 @@ class TeensyTrigger {
     inline void do_nothing();
 
     FASTRUN uint_fast8_t check_for_serial_command();
-    FASTRUN void set_trigger_channel();
-    FASTRUN void external_trigger();
-    FASTRUN void stand_alone_trigger();
-    FASTRUN void enable_trigger_output(uint_fast8_t triggerBit);
-    FASTRUN void disable_trigger_output(uint_fast8_t triggerBit);
 
     FASTRUN void chen_stand_alone_trigger();
     FASTRUN void chen_cascade_trigger();
@@ -103,15 +83,7 @@ class TeensyTrigger {
     uint8_t trigOutChMask = 0b00000000;
     uint8_t ledOutMask = 0b00000000;
     uint_fast16_t currentCommand = DO_NOTHING; // for incoming serial data
-    uint8_t triggerOut = US_TRIG;
-      // bit 8 = DAQ_TRIG = TRIG 1
-      // bit 7 = US_TRIG = TRIG 2
-      // bit 5 = ONDA_TRIG = TRIG 3
-      // bit 4 = EDGE_TRIG = TRIG 4
-      // sets trigger output channel
-      // FIXME -> needs to be replaced with proper trigger mask etc..
     uint_fast8_t lastTrigState = 0;
-      // keeps last external trigger state to detect stage changes
     uint_fast32_t lastCommandCheck = 0;
     uint8_t ledBrightness = 0; // use in do nothing to fade LEDs
     uint8_t fadeIn = 1; // getting brighter or darker

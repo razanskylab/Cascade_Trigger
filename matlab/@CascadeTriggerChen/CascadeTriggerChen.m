@@ -1,11 +1,12 @@
-% non functional example class to be used as basis for new hardware interfacing
-% class, as they alls should have similar structure and content
-
+% 
 classdef CascadeTriggerChen < BaseHardwareClass
   properties
     prf(1,1) {mustBeInteger,mustBeNonnegative,mustBeFinite} = 100; % [HZ]
+    preTriggerPrf(1,1) {mustBeInteger,mustBeNonnegative,mustBeFinite} = 100; % HZ
+    nPreTrigger(1,1) {mustBeInteger,mustBeNonnegative,mustBeFinite} = 1; %
     postAcqDelay(1,1) {mustBeInteger,mustBeNonnegative,mustBeFinite} = 100; % [us]
-    aodTrigger(1,1) {mustBeInteger,mustBeNonnegative,mustBeFinite} = 9; % [us]
+    aodTrigger(1,1) {mustBeInteger,mustBeNonnegative,mustBeFinite} = 9; 
+      % number of AOD triggers per camera trigger  
 
     daqDelay(1,1) uint32 {mustBeInteger,mustBeNonnegative,mustBeFinite} = 3;
     trigDuration(1,1) uint32 {mustBeInteger,mustBeNonnegative,mustBeFinite} = 5;
@@ -35,7 +36,7 @@ classdef CascadeTriggerChen < BaseHardwareClass
   % things we don't want to accidently change but that still might be interesting
   properties (Constant)
     % serial properties
-    SERIAL_PORT = 'COM13';
+    SERIAL_PORT = 'COM3';
     BAUD_RATE = 9600;
 
     DO_AUTO_CONNECT = true; % connect when object is initialized?
