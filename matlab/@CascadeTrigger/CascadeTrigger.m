@@ -87,6 +87,9 @@ classdef CascadeTrigger < BaseHardwareClass
   methods % short methods, which are not worth putting in a file
 
     function [] = Write_Command(CT,command)
+      if isempty(CT.serialPtr)
+        error('No valied serial pointer = no open connection?');
+      end
       if ~isa(command,'uint16')
         error('Counter commands must be uint16!');
       end
