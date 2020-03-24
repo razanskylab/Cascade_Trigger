@@ -29,7 +29,7 @@ classdef CascadeTriggerAlone < BaseHardwareClass
   % things we don't want to accidently change but that still might be interesting
   properties (Constant)
     % serial properties
-    SERIAL_PORT = 'COM13';
+    SERIAL_PORT = 'COM3';
     BAUD_RATE = 9600;
 
     DO_AUTO_CONNECT = true; % connect when object is initialized?
@@ -143,6 +143,12 @@ classdef CascadeTriggerAlone < BaseHardwareClass
     function [] = Update_Trigger(CT)
       CT.Disable_Trigger();
       CT.Enable_Trigger();
+    end
+
+    function [] = Update_PRF(CT,prf)
+      CT.Disable_Scope();
+      CT.prf = prf;
+      CT.Enable_Scope_Mode();
     end
 
     % --------------------------------------------------------------------------

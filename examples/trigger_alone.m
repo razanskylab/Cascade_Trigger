@@ -4,7 +4,7 @@ else
   CT = CascadeTriggerAlone;
 end
 CT.prf = 100; % set trigger freq.
-CT.mode = 'all'; % us dye onda32
+CT.mode = 'us'; % us dye onda32
 CT.Setup_Trigger();
 
 % scope has two modes, continous:
@@ -15,4 +15,5 @@ CT.Disable_Scope();
 % scope has two modes, nTrigger:
 nTrigger = 100;
 CT.Enable_Scope_Mode(nTrigger);
-%% no need to disable here!
+pause(nTrigger./CT.prf);
+CT.Disable_Scope();
