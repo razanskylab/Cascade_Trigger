@@ -9,7 +9,7 @@
 #include "DacChannel.h"
 #include <Arduino.h>
 
-#define NCHANNELS 3 // number of laser channels (excl. DAC)
+#define NCHANNELS 3 // number of laser channels + us pulser channel (excl. DAC)
 
 class Cascader
 {
@@ -25,7 +25,11 @@ public:
 	void start_cascade();
 	
 	// each channel gets an on and an off timepoint, therefoer NCHANNELS * 2 bytes
-	void init(const char timepoints[NCHANNELS * 2], unsigned char timepointsDac[NCHANNELS]);
+	void init(
+		const char timepoints[NCHANNELS * 2],
+		unsigned char timepointsDac[NCHANNELS],
+		const char _nAverages,
+		const char _tAcquire);
 	// structure timepoints: onTime0, offTime0, onTime1, offTime1 ... for rising and 
 	// falling edges of laser triggers
 	// structure timepointsDac: each channel has a corresponding dac polarity switch
@@ -34,10 +38,11 @@ private:
 
 	// channels represent each 
 	unsigned char nChannels = NCHANNELS;
-	Channel chArray[NCHANNELS] = {2, 5, 6};
-	// order: 532, edge, 1064
+	Channel chArray[NCHANNELS] = {2, 5, 6}; // arduino pins of channels
+	// order: 532, edge, 1064, US pulser
 	DacChannel chDac = {3}; // class representing dac channel, argument: pin number
 	unsigned char endTime; // time indicating when we are done with cascade [micros]
 	IntervalTimer myTimer; // timer used instead of elapsedMicros since more accurate
-	
+	char nAverages;
+	char tAcquire;
 };
