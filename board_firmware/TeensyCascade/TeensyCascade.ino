@@ -5,12 +5,8 @@
 
 #include "Cascader.h"
 
-#ifndef PIN_LED
-  #define PIN_LED 13
-#endif
-
 #ifndef PIN_INPUT
-	#define PIN_INPUT 22 // corresponds to pin 2 of position counter teensy
+	#define PIN_INPUT 16 // corresponds to pin 2 of position counter teensy
 #endif
 
 char mode;
@@ -19,9 +15,10 @@ Cascader myCascader;
 
 // let led blink for half a second to identify device
 void blink_led(){
-	digitalWriteFast(PIN_LED, HIGH);
+	digitalWriteFast(LED_BUILTIN, HIGH);
   	delay(500);
-  	digitalWriteFast(PIN_LED, LOW);
+  	digitalWriteFast(LED_BUILTIN, LOW);
+  	return;
 }
 
 // removes all remaining characters from serial port
@@ -30,11 +27,12 @@ void clear_serial(){
 		Serial.read();
 		delay(10);
 	}
+	return;
 }
 
 void setup(){
 	Serial.begin(115200); // start serial communication
-	pinMode(PIN_LED, OUTPUT); // make led output
+	pinMode(LED_BUILTIN, OUTPUT); // make led output
 	blink_led(); // identify device
   	pinMode(PIN_INPUT, INPUT); // declare input line
   	clear_serial();
@@ -45,7 +43,7 @@ void loop(){
 
 	// wait for serial input
 	while(Serial.available() == 0)
-		delayMicroseconds(10);
+		delayMicroseconds(1);
 
 	// read serial byte
 	mode = Serial.read();
@@ -61,18 +59,18 @@ void loop(){
 	{
 		Serial.print("Start\r"); 
 		bool oldStatus = digitalReadFast(PIN_INPUT);
-		digitalWriteFast(PIN_LED, HIGH); // set led to high to identify active status
 		clear_serial(); // make sure nothing is in the line before going into loop
 		do
 		 {
 		 	// check if new signal change was detected at input pin
 		 	if (oldStatus ^ digitalReadFast(PIN_INPUT)){
+		 		digitalWriteFast(LED_BUILTIN, oldStatus);
 		 		oldStatus = !oldStatus; // invert oldStatus
 		 		myCascader.start_cascade(); // start event loop
 		 	}
 
 		 } while (Serial.available() == 0); 
-		 digitalWriteFast(PIN_LED, LOW); // set led to low to identify inactive status
+		 digitalWriteFast(LED_BUILTIN, LOW); // set led to low to identify inactive status
 
 	}else if (mode == 'x'){
 		Serial.print("Init\r");

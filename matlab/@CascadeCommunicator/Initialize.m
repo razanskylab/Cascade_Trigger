@@ -29,7 +29,7 @@ function Initialize(cc)
 	% add char indicating the number of averages
 	string = [string, char(cc.nAverages)];
 	% add char indicating delay between averages
-	string = [string, char(ceil(cc.tAcquire))]
+	string = [string, char(ceil(cc.tAcquire))];
 
 	fprintf(cc.S, string);
 	% pause(0.3);

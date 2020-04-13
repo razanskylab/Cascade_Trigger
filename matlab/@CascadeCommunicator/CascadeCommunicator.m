@@ -23,7 +23,7 @@ classdef CascadeCommunicator < handle
 
 	properties (SetAccess = private, Hidden)
 		S; % serial port object
-		nLasers = 3; % different from nWavelength since it is the hardware side
+		nLasers(1, 1) = 3; % different from nWavelength since it is the hardware side
 		% needs to be compatible with NLASERS in arduino code
 	end
 

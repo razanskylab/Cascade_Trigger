@@ -38,7 +38,7 @@ private:
 
 	// channels represent each 
 	unsigned char nChannels = NCHANNELS;
-	Channel chArray[NCHANNELS] = {2, 5, 6}; // arduino pins of channels
+	Channel chArray[NCHANNELS] = {12, 11, 10}; // arduino pins of channels
 	// order: 532, edge, 1064, US pulser
 	DacChannel chDac = {3}; // class representing dac channel, argument: pin number
 	unsigned char endTime; // time indicating when we are done with cascade [micros]
