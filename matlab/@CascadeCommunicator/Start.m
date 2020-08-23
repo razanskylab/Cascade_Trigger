@@ -9,8 +9,8 @@ function Start(cc)
 
 	cc.Clear_Serial_Input();
 
-	fprintf(cc.S, 's');
-	response = fscanf(cc.S);
+	write(cc.S, 's', "uint8");
+	response = read(cc.S, 6, "string");
 
 	% check response
 	if ~strcmp(response(1:end-1), 'Start')

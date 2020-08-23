@@ -1,45 +1,46 @@
 #include "FreqBasedTrigger.h"
 
-static void trigger_outer();
+//static void trigger_outer();
 
 // Initialize frequency based trigger
-FreqBasedTrigger::freq_based_trigger(void)
+FreqBasedTrigger::FreqBasedTrigger(void)
 {
-	pinMode(PIN_LASER_TRIGGER, OUTPUT);
-	pinMode(PIN_LED, OUTPUT);
-	digitalWriteFast(PIN_LASER_TRIGGER, oldOutput);
+	pinMode(OUTPUT_POSBOARD, OUTPUT);
+	pinMode(LED_BUILTIN, OUTPUT);
+	digitalWriteFast(OUTPUT_POSBOARD, oldOutput);
 }
 
-
 // Define the trigger frequency
-void FreqBasedTrigger::setTrigFreq(const unsigned short& _trigFreq)
+void FreqBasedTrigger::setTrigFreq(const uint32_t& _trigFreq)
 {
 	// Check for upper and lower limit
 	if (_trigFreq == 0){
 		trigFreq = 1;
-	}else if (_trigFreq >= 100000){
-		trigFreq = 100000;
-	}else 
-	{
+	}else if (_trigFreq > maxTriggerFreq){ // upper limit for trigger frequency
+		trigFreq = maxTriggerFreq;
+	}else{
 	  trigFreq = _trigFreq; 
 	}
   
 	period = 1000000 / double(trigFreq); // trigger period in µs
+	return;
 }
 
-void FreqBasedTrigger::setNoShots(const unsigned short& _noShots)
+// define number of shots to fire
+void FreqBasedTrigger::setNoShots(const uint32_t& _noShots)
 {
 	noShots = _noShots;
+	return;
 }
 
 // Start trigger if not running
 void FreqBasedTrigger::start()
 {
-	digitalWriteFast(PIN_LED, HIGH);
+	digitalWriteFast(LED_BUILTIN, HIGH);
 
 	// noShots == 0 means we will fire forever, so don't increase the counter
-	bool flagRunning = 1;
-	unsigned short counter = 0;
+	flagRunning = 1;
+	uint32_t counter = 0;
 
 	// clear serial input
 	clear_serial();
@@ -51,7 +52,7 @@ void FreqBasedTrigger::start()
 		if (noShots > 0) // if finite number of shots
 		{
 			counter++;
-			if(counter >= noShots)
+			if (counter >= noShots)
 				flagRunning = 0;
 		}
 		else // serial interrupt 
@@ -66,29 +67,31 @@ void FreqBasedTrigger::start()
 			delay(period / 1000);
 	}
 
-	digitalWriteFast(PIN_LED, LOW);
-
+	digitalWriteFast(LED_BUILTIN, LOW);
+	return;
 }
 
 // Stop trigger if running
 void FreqBasedTrigger::stop()
 {
-	digitalWriteFast(PIN_LED, LOW);
+	digitalWriteFast(LED_BUILTIN, LOW);
+	return;
 }
 
-// Generate short pulse which will be later elongated by Nano
-// Changed: We now only change the output because nano is sensitive to both rising
-// and falling edge
+// Switch polarity of output signal
 void FreqBasedTrigger::triggerSignal()
 {
 	oldOutput = !oldOutput;
-	digitalWriteFast(PIN_LASER_TRIGGER, oldOutput);
-	digitalWriteFast(PIN_LED, oldOutput);
+	digitalWriteFast(OUTPUT_POSBOARD, oldOutput);
+	digitalWriteFast(LED_BUILTIN, oldOutput);
+	return;
 }
 
+// clear all serial content at input
 void FreqBasedTrigger::clear_serial()
 {
-	char trash;
 	while(Serial.available() > 0)
-		trash = Serial.read();
+		Serial.read();
+
+	return;
 }
