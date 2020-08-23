@@ -8,9 +8,7 @@ void Channel::update(const volatile unsigned char& time){
 				digitalWriteFast(pin, HIGH);
 				flagOn = 1;
 			}
-		}
-
-		if (!flagOff){
+		}else	if (!flagOff){
 			if (time >= offTime){
 				digitalWriteFast(pin, LOW);
 				flagOff = 1;

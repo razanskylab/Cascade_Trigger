@@ -31,9 +31,9 @@ function Initialize(cc)
 	% add char indicating delay between averages
 	string = [string, char(ceil(cc.tAcquire))];
 
-	fprintf(cc.S, string);
+	write(cc.S, char(string), "uint8");
 	% pause(0.3);
-	response = fscanf(cc.S);
+	response = char(read(cc.S, 5, "string"));
 
 	if ~strcmp(response(1:end-1), 'Init')
 		error(['Could not initialize, response: ', response(1:end-1)]);

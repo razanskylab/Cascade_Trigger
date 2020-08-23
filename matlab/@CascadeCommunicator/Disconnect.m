@@ -2,7 +2,7 @@ function Disconnect(cc)
 
 	fprintf('[CascadeCommunicator] Discounneting device... ');
 
-	fclose(cc.S);
+	cc.S = [];
 
 	fprintf('done!\n');
 
