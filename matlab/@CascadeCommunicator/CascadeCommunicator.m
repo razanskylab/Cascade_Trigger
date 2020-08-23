@@ -37,13 +37,8 @@ classdef CascadeCommunicator < handle
 		% Constructor
 		function cc = CascadeCommunicator()
 			% check if file exists and if so load port from there
-			if isfile(get_path('com_file'))
-				load(get_path('com_file'), 'port_cascadecommunicator'); % load file
-				cc.port = port_cascadecommunicator; % read com port
-			else % otherwise determine com port
-				cc.Find_Com_Port();
-			end
-
+			cc.port = get_com_port('Cascader'); % read com port
+			
 			cc.S = serial(cc.port);
 			cc.S.BaudRate = 115200;
 			cc.S.Terminator = 'CR';
