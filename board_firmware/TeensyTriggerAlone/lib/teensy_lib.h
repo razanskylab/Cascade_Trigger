@@ -39,8 +39,6 @@ void serial_wait_next_command();
 #define EDGE_TRIG 4
 #define DAQ_LED_PIN 3
 #define ALL_TRIG 0
-  // screwed up wiring there, bit 8 of the LED port isn't connected right...
-
 
 uint32_t lastCommandCheck;
 uint16_t currentCommand = DO_NOTHING; // for incoming serial data
