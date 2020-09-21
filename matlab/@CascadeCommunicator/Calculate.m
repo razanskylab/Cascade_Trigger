@@ -19,7 +19,7 @@ function Calculate(cc)
 
 	tEarliest = 0; % in the beginning we could start the laser whenever we want
 
-	figure();
+	figure('Name', 'CascaderPlot', 'NumberTitle', 'Off');
 
 	for iWavelength = 1:cc.nWavelengths
 		% if we are working with onda532
@@ -33,7 +33,7 @@ function Calculate(cc)
 			
 			% theoretical value where we could position rising edge
 			tEarliest = cc.Calculate_Channel_Times(tEarliest, 1);
-			cc.Plot_Channel(1, C.DarkGreen);
+			cc.Plot_Channel(1, wavelength2color(cc.wavelengths(iWavelength)));
 			title('Onda532');
 
 			flagOnda532 = 1;
@@ -48,7 +48,7 @@ function Calculate(cc)
 
 			% theoretical value where we could position rising edge
 			tEarliest = cc.Calculate_Channel_Times(tEarliest, 2);
-			cc.Plot_Channel(2, C.DarkOrange);
+			cc.Plot_Channel(2, wavelength2color(cc.wavelengths(iWavelength)));
 			title('Dye');
 			
 			flagDye = 1;

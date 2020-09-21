@@ -2,3 +2,4 @@
 **/.pio
 
 board_firmware/TeensyTrigger 2.1/.vscode/
+get_path.m
