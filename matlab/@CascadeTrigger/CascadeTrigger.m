@@ -3,6 +3,7 @@
 
 classdef CascadeTrigger < BaseHardwareClass
   properties
+		classId = "[Trigger]";
     triggerMask(1,8) uint16 {mustBeInteger,mustBeNonnegative} = [0,0,0,0,0,0,0,0];
       % defines which channels to trigger
     mode(1,:) char = 'us'; % set function ensures only valid modes are used!
