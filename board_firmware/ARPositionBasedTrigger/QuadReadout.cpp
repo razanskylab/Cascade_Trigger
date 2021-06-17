@@ -23,10 +23,11 @@ QuadReadout::QuadReadout(){
 
 	// PWM clock for HCTL
   analogWriteFrequency(HCTL_CLOCK_PIN, HCTL_CLOCK_SIGNAL);
-  analogWrite(HCTL_CLOCK_PIN, 160); // set to 50% duty cycle
+  analogWrite(HCTL_CLOCK_PIN, 128); // set to 50% duty cycle
 
 }
 
+// class destructor
 QuadReadout::~QuadReadout(){
 	// nothing here yet but an empty destructor
 }
@@ -34,16 +35,18 @@ QuadReadout::~QuadReadout(){
 // reset counter chip values to zero
 void QuadReadout::reset_hctl(){
 	digitalWriteFast(HCTL_RST_PIN, LOW); // start reset
- 	WAIT_60_NS;
+ 	 WAIT_96_NS;
   digitalWriteFast(HCTL_RST_PIN, HIGH);
   return;
 }
 
-void QuadReadout::update_counter(){
-	digitalWriteFast(HCTL_SEL_PIN, LOW); // select high bit
+void QuadReadout::update_counter()
+{
 	digitalWriteFast(HCTL_OE_PIN, LOW); // start read
+	WAIT_48_NS; WAIT_48_NS; WAIT_48_NS; WAIT_48_NS; // allow high bit to be stable
+	digitalWriteFast(HCTL_SEL_PIN, LOW); // select high bit
+	WAIT_48_NS; WAIT_48_NS; WAIT_48_NS; WAIT_48_NS; // allow high bit to be stable
 
-	WAIT_120_NS; // allow high bit to be stable
 	((unsigned char *)&posCounter)[1] = GPIOD_PDIR & 0xFF; // read msb
 
 	digitalWriteFast(HCTL_SEL_PIN, HIGH); // select low bit
@@ -51,24 +54,18 @@ void QuadReadout::update_counter(){
 	// we do this after changing pin, as data now needs time to settle...
 	// ((uint8_t *)&counter)[1] = msb;
 
-	WAIT_120_NS; // allow high bit to be stable
+	// WAIT_24_NS; WAIT_48_NS; // allow high bit to be stable
+	WAIT_48_NS; WAIT_48_NS; WAIT_48_NS; WAIT_48_NS; // allow high bit to be stable
 	((unsigned char *)&posCounter)[0] = GPIOD_PDIR & 0xFF; // read lsb
 	// finish read out
 	digitalWriteFast(HCTL_OE_PIN, HIGH);
-	// digitalWriteFast(HCTL_SEL_PIN, HIGH);
-	// might need to add delay here...
-	WAIT_120_NS;
-
-	// get lsb, write directly to counter, also turns uint to int...lots of magic here
-	// ((uint8_t *)&counter)[0] = lsb;
-	// if (posCounter == minusOne)
-	//   Serial.println("OVERFLOW WARN!");
+	
 	return;
 }
 
 // runs position based trigger until Serial interrupt arrives
 void QuadReadout::startN(bool& lastState){
-	// update_counter();
+	//update_counter();
 	update_counter();
 	digitalWriteFast(STATUS_LEDS[3], HIGH);
 	uint16_t lastTrigger = posCounter;

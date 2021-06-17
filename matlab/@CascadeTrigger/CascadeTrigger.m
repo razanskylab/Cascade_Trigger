@@ -60,7 +60,7 @@ classdef CascadeTrigger < BaseHardwareClass
       if nargin < 1
         doConnect = CT.DO_AUTO_CONNECT;
       end
-
+      
       if doConnect && ~CT.isConnected
         CT.Connect;
       elseif ~CT.isConnected

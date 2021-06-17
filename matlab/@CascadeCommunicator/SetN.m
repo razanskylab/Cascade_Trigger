@@ -12,7 +12,7 @@ function SetN(cc)
 
 	response = char(read(cc.S, 2, "string"));
 	if ~strcmp(response(1), "r")
-		error('Teensy did not give handshake for StartN command');
+		error('Teensy did not give handshake for SetN command');
 	end
 
 end

@@ -16,6 +16,7 @@ function Calculate(cc)
 	flagOnda532 = 0;
 	flagDye = 0;
 	flagOnda1064 = 0;
+	flagUs = 0;
 
 	tEarliest = 0; % in the beginning we could start the laser whenever we want
 
@@ -66,14 +67,28 @@ function Calculate(cc)
 			title('Onda1064');
 
 			flagOnda1064 = 1;
+		elseif (cc.wavelengths(iWavelength) == 0)
+			if flagUs 
+				error('Ultrasound already in use');
+			else
+
+			end
+			tEarliest = cc.Calculate_Channel_Times(tEarliest, 4);
+			cc.Plot_Channel(4, C.DarkBlue);
+			title('Ultrasound');
+			flagUs = 1;
 		
-		% if we are working with the dye laser 
 		else
 			error('No laser matches this wavelength range.');
 		end
 	end
 
-	tMax = max(cc.timepoints(:)) + cc.tAcquire;
+	tMax = max(cc.timepoints(:));
+
+	if (tMax < cc.tAcquire)
+		tMax = cc.tAcquire;
+	end
+
 	for iPlot = 1:cc.nLasers
 		subplot(cc.nLasers, 1, iPlot)
 		xlim([0, tMax]);
@@ -82,17 +97,19 @@ function Calculate(cc)
 	% if laser is not active we don't want the corresponding dac event so we just set it 
 	% to 255
 	if (flagOnda532 == 0)
-		cc.timepoints(4, 1) = 255;
+		cc.timepoints(4, 1) = intmax('uint32');
 	end
 
 	if (flagDye == 0)
-		cc.timepoints(4, 2) = 255;
+		cc.timepoints(4, 2) = intmax('uint32');
 	end
 	
 	if (flagOnda1064 == 0)
-		cc.timepoints(4, 3) = 255;
+		cc.timepoints(4, 3) = intmax('uint32');
 	end
 
-	% cc.timepoints
+	if (flagUs == 0)
+		cc.timepoints(4, 4) = intmax('uint32');
+	end
 
 end

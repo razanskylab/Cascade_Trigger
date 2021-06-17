@@ -24,7 +24,7 @@ private:
 	uint32_t iTrigger = 0;
 	uint32_t stepSize = 200; // step size in counter events of quad decoder board
 
-	const uint32_t HCTL_CLOCK_SIGNAL = MEGA * 10; // DO NOT CHANGE!!!
+	const uint32_t HCTL_CLOCK_SIGNAL = MEGA * 20; // DO NOT CHANGE!!!
 };
 
 #endif

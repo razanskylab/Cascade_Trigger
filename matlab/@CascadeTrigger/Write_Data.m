@@ -10,7 +10,7 @@ function [] = Write_Data(CT,data)
       CT.Verbose_Warn('   Data converted to uint8!');
       data = uint8(data);
     end
-    writePort(CT.serialPtr,data);
+    writePort(CT.serialPtr, data);
     % CT.Done();
   else
     CT.Verbose_Warn('Need to connect to Teensy before sening data!\n');
