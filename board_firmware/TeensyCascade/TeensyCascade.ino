@@ -3,6 +3,10 @@
 // Mail: hofmannu@biomed.ee.ethz.ch
 // Date: 25.04.2019
 
+// Changlog:
+// 	- added second input line coming from separated position based trigger
+// 	- add option for changing polarity on stage channel
+
 #include "Cascader.h"
 #include "PinMapping.h"
 #include "NOP_CASC.h"
@@ -36,7 +40,8 @@ void setup(){
 	Serial.begin(115200); // start serial communication
 	pinMode(LED_BUILTIN, OUTPUT); // make led output
 	blink_led(); // identify device
-  pinMode(INPUT_CASCADE, INPUT_PULLUP); // declare input line
+  pinMode(INPUT_CASCADE, INPUT); // declare input line
+  pinMode(INPUT_STAGE, INPUT); // declare input line from stage
   clear_serial();
   pinMode(12, OUTPUT);
 }
@@ -64,6 +69,12 @@ void loop()
 {
 	while(Serial.available() == 0) // wait for serial input
 		delayMicroseconds(1);
+
+	// overview modes:
+	// 		i 			identify
+	//		s 			start teensy cascade
+	// 		n 			start teensy cascade until interrupt
+	// 		x 			initialize cascade settings
 
 	mode = Serial.read(); // read serial byte
 	if (mode == 'i') // identify device for COM port detection
@@ -93,17 +104,20 @@ void loop()
 		nTrigger = serialReadUint32();
 		Serial.print("r\r"); // let matlab know that we are ready
 	}
-	else if (mode == 'n') // means start cascade until serial interrupt
+	else if (mode == 'p') // means start cascade until serial interrupt on stage mode
 	{ 
 		digitalWriteFast(LED_BUILTIN, HIGH);
-		bool oldStatus = digitalReadFast(INPUT_CASCADE); // coming from digitalReadFast
 		uint16_t iTrigger = 0;
 		Serial.print("r\r"); // let matlab know that we are ready
 		do{ // trigger because of signal from position board
-			if(oldStatus ^ digitalReadFast(INPUT_CASCADE)){	
-				oldStatus = !oldStatus; // invert oldStatus
+			if (digitalReadFast(INPUT_STAGE))
+			{	
 				myCascader.start_cascade(); // start event loop
 			 	iTrigger++;
+			 	while (digitalReadFast(INPUT_STAGE))
+			 	{
+			 		// do nothing but wait for signal to come down
+			 	}
 			}
 		}while(Serial.available() == 0);
 

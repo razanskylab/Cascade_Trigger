@@ -10,7 +10,7 @@ function Stop(cc)
 	cc.Clear_Serial_Input();
 	write(cc.S, 'o', "uint8");
 
-	trigEvents = str2double(readline(cc.S));
+	% trigEvents = str2double(readline(cc.S));
 
 	%{
 if (trigEvents ~= cc.nShots)

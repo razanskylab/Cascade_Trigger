@@ -7,14 +7,19 @@
 
 function Start(cc)
 
+	fprintf("[CascadeCommunicator] Starting cascader... ");
+
 	cc.Clear_Serial_Input();
 
 	write(cc.S, 's', "uint8");
-	response = read(cc.S, 6, "string");
-
-	% check response
-	if ~strcmp(response(1:end-1), 'Start')
+	response = read(cc.S, 2, "string");
+	
+	% check response (r stands fpr ready)
+	if response(1:end-1) == 'r'
 		error(['Could not start cascade trigger, response: ', response(1:end-1)]);
+	else
+		fprintf("done!\n");
 	end
+
 
 end

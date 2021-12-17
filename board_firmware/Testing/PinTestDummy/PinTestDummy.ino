@@ -8,8 +8,10 @@
 */
 
 #ifndef OUTPUT_PIN
-	#define OUTPUT_PIN 16
+	#define OUTPUT_PIN 19
 #endif
+
+#define LED_PIN 13
 
 // SMA 1: teensy pin 12
 // SMA 2: teensy pin 11
@@ -19,12 +21,18 @@
 
 void setup(){
 	pinMode(OUTPUT_PIN, OUTPUT);
+	pinMode(LED_PIN, OUTPUT);
 };
 
 
-void loop(){
+void loop()
+{
 	digitalWriteFast(OUTPUT_PIN, 1);
-	delayMicroseconds(100);
+	digitalWriteFast(LED_PIN, 1);
+	delay(500);
+
 	digitalWriteFast(OUTPUT_PIN, 0);
-	delayMicroseconds(100);
+	digitalWriteFast(LED_PIN, 0);
+	
+	delay(500);
 };
