@@ -74,6 +74,7 @@ void loop()
 	else if (mode == 's') // start your cascade, stopped any serial input
 	{
 		bool oldStatus = digitalReadFast(INPUT_CASCADE); 
+		uint32_t iTrigger = 0;
 		clear_serial(); // make sure nothing is in the line before going into loop
 		Serial.print("r\r"); // let matlab know that we are ready 
 		do
@@ -84,32 +85,39 @@ void loop()
 		 		digitalWriteFast(LED_BUILTIN, oldStatus);
 		 		oldStatus = !oldStatus; // invert oldStatus
 		 		myCascader.start_cascade(); // start event loop
+		 		iTrigger++;
 		 	}
-		 }while(Serial.available() == 0); 
-		 digitalWriteFast(LED_BUILTIN, LOW); // set led to low to identify inactive status
+		}while(Serial.available() == 0); 
+
+		clear_serial();
+		Serial.print(iTrigger);
+		Serial.print("\r"); // let matlab know that we are ready
+		digitalWriteFast(LED_BUILTIN, LOW); // set led to low to identify inactive status
 	}
 	else if(mode == 'd') // define number of trigger events for cascader
 	{ 
 		nTrigger = serialReadUint32();
 		Serial.print("r\r"); // let matlab know that we are ready
 	}
-	else if (mode == 'n') // means start cascade until serial interrupt
+	else if (mode == 'n') // means start cascade for n events
 	{ 
 		digitalWriteFast(LED_BUILTIN, HIGH);
 		bool oldStatus = digitalReadFast(INPUT_CASCADE); // coming from digitalReadFast
-		uint16_t iTrigger = 0;
-		Serial.print("r\r"); // let matlab know that we are ready
+		
+		uint32_t nTrigger = serialReadUint32();
+		uint32_t iTrigger = 0;
+		Serial.print("r"); // let matlab know that we are ready
+		Serial.print(nTrigger);
+		Serial.print("\r");
 		do{ // trigger because of signal from position board
 			if(oldStatus ^ digitalReadFast(INPUT_CASCADE)){	
 				oldStatus = !oldStatus; // invert oldStatus
 				myCascader.start_cascade(); // start event loop
 			 	iTrigger++;
 			}
-		}while(Serial.available() == 0);
+		}while(iTrigger < nTrigger);
 
-		char trash;
-		while(Serial.available() > 0)
-			trash = Serial.read(); // delete interrupt
+		clear_serial();
 
 		// let MATLAB know how many trigger events we had
 		Serial.print(iTrigger);
@@ -124,7 +132,7 @@ void loop()
 		uint32_t timepointsDac[NCHANNELS]; // temp array for dac timepoints
 		uint32_t nAverages;
 		uint32_t tAcquire;
-		uint32_t uTimepointsDac[NCHANNELS];
+		// uint32_t imepointsDac[NCHANNELS];
 
 		for (uint8_t iByte = 0; iByte < (NCHANNELS * 2); iByte++)
 			timepoints[iByte] = serialReadUint32();

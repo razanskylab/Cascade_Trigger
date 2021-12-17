@@ -7,18 +7,17 @@
 
 function Stop(cc)
 
+
+	fprintf("[Casdaer] Stopping cascader... ");
+
 	cc.Clear_Serial_Input();
 	write(cc.S, 'o', "uint8");
 
-	trigEvents = str2double(readline(cc.S));
-
-	%{
-if (trigEvents ~= cc.nShots)
-		txtMsg = [num2str(trigEvents), ' trigger events only (missing ', ...
-		num2str(double(cc.nShots) - trigEvents), ')'];
-		warning(txtMsg);
+	lastCascCount = str2double(readline(cc.S));
+	if isfinite(lastCascCount)
+		cc.lastCascCount = lastCascCount;
 	end
-%}
 
+	fprintf("done!\n");
 
 end

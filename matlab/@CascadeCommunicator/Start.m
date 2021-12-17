@@ -7,14 +7,16 @@
 
 function Start(cc)
 
+	fprintf("[CascadeCommunicator] Starting cascader... ");
 	cc.Clear_Serial_Input();
 
 	write(cc.S, 's', "uint8");
-	response = read(cc.S, 6, "string");
+	response = read(cc.S, 1, "string");
 
 	% check response
-	if ~strcmp(response(1:end-1), 'Start')
+	if response(1) ~= 'r'
 		error(['Could not start cascade trigger, response: ', response(1:end-1)]);
+	else
+		fprintf("done!\n");
 	end
-
 end

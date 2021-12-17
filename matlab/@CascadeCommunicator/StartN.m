@@ -6,11 +6,12 @@
 function StartN(cc)
 
 	cc.Clear_Serial_Input();
-	% string = ['n', typecast(uint16(cc.nShots), "uint8")];
-	write(cc.S, 'n', "uint8");
+	string = ['n', typecast(uint32(cc.nShots), "uint8")];
+	write(cc.S, char(string), 'uint8');
 
 	response = char(readline(cc.S));
-	if ~strcmp(response, "r")
+	idealResponse = ['r', num2str(cc.nShots)];
+	if ~strcmp(response, idealResponse)
 		error('Teensy did not give handshake for StartN command');
 	end
 

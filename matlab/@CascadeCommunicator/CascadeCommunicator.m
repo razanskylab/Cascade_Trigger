@@ -22,11 +22,12 @@ classdef CascadeCommunicator < handle
 		% first dim is 1: risingEdge, 2: expected shot timepoint, 3: fallingEgdgestop trigger, 4: DAC trigger
 		% second dim laser id, order is: Onda532, edge/dye, onda1064, us pulser
 		nAverages(1, 1) uint32 = 1;
-		nShots(1, 1) uint16;
+		nShots(1, 1) uint32;
 	end
 
 	properties (SetAccess = private)
 		port;
+		lastCascCount(1, 1);
 	end
 
 	properties (SetAccess = private, Hidden)
