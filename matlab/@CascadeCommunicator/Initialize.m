@@ -12,40 +12,28 @@ function Initialize(cc)
 	sortedDac = sort(cc.timepoints(4, :)); % sort trigger events of dac in rising order
 
 	% first character needs to be an x to make sure that the teensy understands what we want
-	string = ['x'];
+	write(cc.S, 'x', 'uint8');
+	cc.Handshake();
 
 	% add rising and falling edge for each laser to string array
 	for iLaser = 1:cc.nLasers
-		string = [string, ...
-			typecast(uint32(round(cc.timepoints(1, iLaser) * 1e3)), 'uint8'), ...
-			typecast(uint32(round(cc.timepoints(3, iLaser) * 1e3)), 'uint8')];
+		write(cc.S, uint32(round(cc.timepoints(1, iLaser) * 1e3)), 'uint32');
+		write(cc.S, uint32(round(cc.timepoints(3, iLaser) * 1e3)), 'uint32');
 	end
-
-		% string = [tc.triggerType, ...
-		% 	typecast(uint32(freq), 'uint8'), ...
-		% 	typecast(uint32(tc.nShots), 'uint8')];
 
 	% add trigger event for dac for each laser
 	for iLaser = 1:cc.nLasers
-		string = [string, ...
-			typecast(uint32(floor(sortedDac(iLaser) * 1e3)), 'uint8')];
+		write(cc.S, uint32(floor(sortedDac(iLaser) * 1e3)), 'uint32');
 	end
 
 	% add char indicating the number of averages
-	string = [string, typecast(uint32(cc.nAverages), 'uint8')];
-	% cc.nAverages
+	write(cc.S, uint32(cc.nAverages), 'uint32'); 
+
 	% add char indicating delay between averages
-	string = [string, typecast(uint32(ceil(cc.tMax) * 1e3), 'uint8')];
-	% cc.tMax
+	write(cc.S, uint32(ceil(cc.tMax) * 1e3), 'uint32'); 
 
-	write(cc.S, char(string), 'uint8');
-	% pause(0.3);
-	response = char(read(cc.S, 5, 'string'));
+	cc.Handshake();
 
-	if ~strcmp(response(1:end-1), 'Init')
-		error(['Could not initialize, response: ', response(1:end-1)]);
-	else
-		fprintf('done!\n')
-	end
+	fprintf("done!\n");
 
 end

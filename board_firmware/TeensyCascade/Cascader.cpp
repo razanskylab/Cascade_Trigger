@@ -1,7 +1,5 @@
 #include "Cascader.h"
 
-
-
 // starts a cascade following an incoming trigger event
 void Cascader::start_cascade()
 {
@@ -30,7 +28,6 @@ void Cascader::start_cascade()
 	}
 	return;
 }
-
 
 // initialize cascader, all timepoints passed in ns
 void Cascader::init(

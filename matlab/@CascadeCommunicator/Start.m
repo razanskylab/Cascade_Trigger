@@ -1,25 +1,22 @@
-% File: Start.m @ CascadeCommunicator
+% File: Start.m @ TeensyCommunicator
 % Author: Urs Hofmann
 % Mail: hofmannu@biomed.ee.ethz.ch
-% Date: 25.04.2019
+% Date: 28.04.2020
 
-% Starts the multiwavelength trigger on teensy
+% Description: Starts the position based trigger scheme.
+% Changelog:
+% 		- include handshake if procedure done
 
-function Start(cc)
+function Start(tc)
+
+	if ~tc.isConnected
+		error("Cannot start procedure");
+	end
 
 	fprintf("[CascadeCommunicator] Starting cascader... ");
-
-	cc.Clear_Serial_Input();
-
-	write(cc.S, 's', "uint8");
-	response = read(cc.S, 2, "string");
-	
-	% check response (r stands fpr ready)
-	if response(1:end-1) == 'r'
-		error(['Could not start cascade trigger, response: ', response(1:end-1)]);
-	else
-		fprintf("done!\n");
-	end
+	write(tc.S, 's', 'uint8');
+	tc.Handshake();
+	fprintf("done!\n");
 
 
 end

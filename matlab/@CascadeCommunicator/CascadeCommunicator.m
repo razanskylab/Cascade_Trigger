@@ -22,17 +22,21 @@ classdef CascadeCommunicator < handle
 		% first dim is 1: risingEdge, 2: expected shot timepoint, 3: fallingEgdgestop trigger, 4: DAC trigger
 		% second dim laser id, order is: Onda532, edge/dye, onda1064, us pulser
 		nAverages(1, 1) uint32 = 1;
-		nShots(1, 1) uint16;
+		nShots(1, 1) uint32;
+		inputPin(1, 1) uint8 = 16;
 	end
 
 	properties (SetAccess = private)
 		port;
+		lastCascCount(1, 1);
+		isConnected(1, 1) logical = 0;
 	end
 
 	properties (SetAccess = private, Hidden)
 		S; % serialport object
 		nLasers(1, 1) = 4; % different from nWavelength since it is the hardware side
 		% needs to be compatible with NLASERS in arduino code
+		baud_rate(1, 1) = 115200;
 	end
 
 	properties (Dependent)
@@ -46,8 +50,7 @@ classdef CascadeCommunicator < handle
 		function cc = CascadeCommunicator()
 			% check if file exists and if so load port from there
 			cc.port = get_com_port('Cascader'); % read com port
-			cc.S = serialport(cc.port, 115200);
-			configureTerminator(cc.S, 'CR');
+			cc.Connect();
 		end
 
 		% Destructor
@@ -61,12 +64,15 @@ classdef CascadeCommunicator < handle
 		Initialize(cc); % initialize serial device
 		Start(cc); % 
 		SetN(cc); % define number of trigger events
-		StartN(cc); % start N trigger events
+		StartN(cc, varargin); % start N trigger events
 		Stop(cc);
+		Set_Input_Pin(cc, varargin);
 		Calculate(cc);
 		tEarliest = Calculate_Channel_Times(cc, tEarliest, iLaser);
 		Plot_Channel(cc, iLaser, laserColor);
 		Clear_Serial_Input(tc);
+		Identify(tc); % makes led blink and returns device id
+		res = Handshake(tc); % performs handshake with device if everything worked nice
 
 		function nWavelengths = get.nWavelengths(cc)
 			nWavelengths = length(cc.wavelengths);

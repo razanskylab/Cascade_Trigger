@@ -3,6 +3,8 @@
 // Mail: hofmannu@ethz.ch
 // Date: 15.07.2021 
 
+// Changelog: input pin now defined through MATLAB
+
 
 #ifndef PINMAPPING_H
 #define PINMAPPING_H
@@ -12,8 +14,4 @@
 	TRIGIN_2 --> PIN 17
 
 */
-
-const unsigned char INPUT_CASCADE = 16;
-const unsigned char INPUT_STAGE = 17;
-
 #endif

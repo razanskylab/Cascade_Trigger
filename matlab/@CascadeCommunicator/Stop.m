@@ -7,18 +7,20 @@
 
 function Stop(cc)
 
-	cc.Clear_Serial_Input();
+	fprintf("[CascadeCommunicator] Stopping cascader... ");
+
 	write(cc.S, 'o', "uint8");
+	res = cc.Handshake();
 
-	% trigEvents = str2double(readline(cc.S));
+	if res
+		lastCascCount = read(cc.S, 1, 'uint32');
+		if isfinite(lastCascCount)
+			cc.lastCascCount = lastCascCount;
+		end
+		cc.Handshake();
 
-	%{
-if (trigEvents ~= cc.nShots)
-		txtMsg = [num2str(trigEvents), ' trigger events only (missing ', ...
-		num2str(double(cc.nShots) - trigEvents), ')'];
-		warning(txtMsg);
+		fprintf("done after %d trigger event(s)!\n", lastCascCount);
+	else
+		fprintf("was not running!\n");
 	end
-%}
-
-
 end
