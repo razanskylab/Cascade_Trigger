@@ -8,7 +8,7 @@
 function Stop(cc)
 
 
-	fprintf("[Casdaer] Stopping cascader... ");
+	fprintf("[Cascader] Stopping cascader...");
 
 	cc.Clear_Serial_Input();
 	write(cc.S, 'o', "uint8");
@@ -16,6 +16,7 @@ function Stop(cc)
 	lastCascCount = str2double(readline(cc.S));
 	if isfinite(lastCascCount)
 		cc.lastCascCount = lastCascCount;
+		fprintf("triggered %d times!\n", cc.lastCascCount);
 	end
 
 	fprintf("done!\n");
