@@ -5,10 +5,13 @@
 
 function Disconnect(cc)
 
-	fprintf('[CascadeCommunicator] Discounneting device... ');
-
-	cc.S = [];
-
-	fprintf('done!\n');
+	if (cc.isConnected)
+		fprintf('[CascadeCommunicator] Discounneting device... ');
+		cc.S = [];
+		fprintf('done!\n');
+		cc.isConnected = 0;
+	else
+		fprintf('[CascadeCommunicator] Device was not connected!\n');
+	end
 
 end

@@ -1,22 +1,29 @@
-% File: Start.m @ CascadeCommunicator
+% File: Start.m @ TeensyCommunicator
 % Author: Urs Hofmann
 % Mail: hofmannu@biomed.ee.ethz.ch
-% Date: 25.04.2019
+% Date: 28.04.2020
 
-% Starts the multiwavelength trigger on teensy
+% Description: Starts the position based trigger scheme.
+% Changelog:
+% 		- include handshake if procedure done
 
 function Start(cc)
 
-	fprintf("[CascadeCommunicator] Starting cascader... ");
-	cc.Clear_Serial_Input();
-
-	write(cc.S, 's', "uint8");
-	response = read(cc.S, 1, "string");
-
-	% check response
-	if response(1) ~= 'r'
-		error(['Could not start cascade trigger, response: ', response(1:end-1)]);
-	else
-		fprintf("done!\n");
+	if ~cc.isConnected
+		error("Cannot start procedure");
 	end
+
+	% set the correct trigger type
+	if cc.trigType
+		warning('[Cascader] setting trigger type to rising edges ONLY!\n');
+	else
+		write(cc.S, 'b', 'uint8'); % tell Teensy to set trigger type to BOTH rising and falling edges
+		cc.Handshake();
+	end
+
+	fprintf("[CascadeCommunicator] Starting cascader... ");
+	write(cc.S, 's', 'uint8');
+	cc.Handshake();
+	fprintf("done!\n");
+
 end
