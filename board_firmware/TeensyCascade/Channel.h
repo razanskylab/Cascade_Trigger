@@ -28,14 +28,18 @@ public:
 
 	void update(const uint32_t& time); // check if we need to set channel high or low
 	void reset_flags(); // reset both flags to 0 for next round
-	void setOnTime(const uint32_t& _onTime); // sets on time of channel
-	void setOffTime(const uint32_t& _offTime); // sets off time of channel
+	void set_onTime(const float& _onTime); // sets on time of channel
+	void set_offTime(const float& _offTime); // sets off time of channel
+
+	float get_onTime() const {return onTime;};
+	float get_offTime() const {return offTime;};
+
 	bool flagDone;
 
 private:
 	uint8_t pin; // output pin of teensy
-	uint32_t onTime; // timepoint when trigger should be put to high [ns]
-	uint32_t offTime; // timepoint when trigger should be put to low [ns]
+	float onTime; // timepoint when trigger should be put to high [ns]
+	float offTime; // timepoint when trigger should be put to low [ns]
 	volatile bool flagOn; // did we already set trigger high
 	volatile bool flagOff; // did we already set trigger low
 	bool flagActive; // is 0 if not active and 1 if active

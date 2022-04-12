@@ -11,43 +11,90 @@
 
 #include "Channel.h"
 #include "DacChannel.h"
-#include "PinMapping.h"
+#include "SerialNumbers.h"
 #include "NOP_CASC.h"
 #include <Arduino.h>
-
-#define NCHANNELS 4 // number of laser channels + us pulser channel (excl. DAC)
 
 class Cascader
 {
 public:
 	// constructor
-	Cascader()
-	{
-		// nothing here yet
-	}
+	Cascader();
 
 	// desctructor
 	//~Cascader();
 
-	void start_cascade();
+	void setup();
+	void operate();
 	
 	// each channel gets an on and an off timepoint, therefoer NCHANNELS * 2 bytes
-	void init(
-		const uint32_t* timepoints,
-		const uint32_t* timepointsDac,
-		const uint32_t _nAverages,
-		const uint32_t _tAcquire);
 	// structure timepoints: onTime0, offTime0, onTime1, offTime1 ... for rising and 
 	// falling edges of laser triggers
 	// structure timepointsDac: each channel has a corresponding dac polarity switch
 
 private:
 
-	uint16_t nChannels = NCHANNELS; // number of output channels
-	Channel chArray[NCHANNELS] = {10, 11, 9, 23}; // arduino pins of channels
+	const uint8_t nChannels = 4; // number of output channels
+	Channel chArray[4] = {10, 11, 9, 23}; // arduino pins of channels
 	// order: 532, edge, 1064, US pulser
-	DacChannel chDac = {12}; // class representing dac channel, argument: pin number
+	DacChannel chDac = {12, 4}; // dac channel, argument: pin number
 	uint32_t endTime; // time indicating when we are done with cascade [ns]
-	uint32_t nAverages; // number of averages acquired at each trigger event
-	uint32_t tAcquire; // total acquisition time
+	float tAcquire = 6.0f; // total acquisition time inn micros
+	uint32_t nAverages = 1; // number of averages acquired at each trigger event
+	uint32_t nShots = 1; // number of shots we want to do
+	uint8_t inputPin = 0; // maps to labels on board with offset of 1 
+	const uint8_t INPUT_PINS[4] = {16, 17, 18, 19};
+	uint8_t inputTrigType = TRIG_BOTH; // rising, falling, or both edges
+	bool oldStatus = 0;
+	uint16_t iTrigger = 0;
+
+	// pin definitios
+	const uint8_t LED_STATUS = LED_BUILTIN; 
+
+	// here goes the full communication protocol
+	const uint8_t IDENTIFY = 00;
+
+	// commands defining values
+	const uint8_t SET_AVERAGES = 11;
+	const uint8_t SET_NSHOTS = 12;
+	const uint8_t SET_TACQUIRE = 13;
+	const uint8_t SET_TON = 14; // defines the start timepoint for a laser
+	const uint8_t SET_TOFF = 15; // defines the start timepoint for a laser
+	const uint8_t SET_TDAC = 16; // receive NCHANNELS floats for dac timepoints
+	const uint8_t SET_INPUT_PIN = 17; // define cascader input (1, 2, 3)
+	const uint8_t SET_TRIGTYPE = 18;
+
+	// commands requesing vaSlues
+	const uint8_t GET_AVERAGES = 21;
+	const uint8_t GET_NSHOTS = 22;
+	const uint8_t GET_TACQUIRE = 23;
+	const uint8_t GET_TON = 24;
+	const uint8_t GET_TOFF = 25;
+	const uint8_t GET_TDAC = 26; // returns NCHANNELS floats for dac timepoints
+	const uint8_t GET_INPUT_PIN = 27; // send cascader input back (1, 2, or 3)
+	const uint8_t GET_TRIGTYPE = 28;
+
+	const uint8_t START_CASCADE = 31; // starts the laser cascade
+	const uint8_t STOP_CASCADE = 32; // stops the laser cascade
+
+	const uint8_t TRIG_RISING = 81; // trigger on rising edge
+	const uint8_t TRIG_FALLING = 82; // trigger on falling edge
+	const uint8_t TRIG_BOTH = 83; // trigger on rising and falling edge
+
+	const uint8_t OK = 91;
+	const uint8_t WARNING = 92;
+	const uint8_t ERROR = 93;
+	const uint8_t UNKNOWN_COMMAND = 94;
+	
+	const uint16_t IDENTIFIER = 75; // identifier that we are the TriggerBoard
+
+	// some private functions
+	void wait_for_serial(const uint16_t nSerial);
+	void identify();
+	void check_trigger();
+	void cascade(); // perfroms a single cascade
+	void start_ncascade(); // version of cascader running for n events
+	void start_scascade(); // version of cascader waiting for serial interupt
+	void define_input_pin(const uint8_t iChannel);
+
 };

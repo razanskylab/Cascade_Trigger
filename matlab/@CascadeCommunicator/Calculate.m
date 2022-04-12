@@ -3,14 +3,17 @@
 % Mail: hofmannu@biomed.ee.ethz.ch
 % Date: 25.04.2019
 
-% Description: Initializes hardware.
+% Description: calculates the trigger times
 
 function Calculate(cc)
 
 	C = Colors();
 
-	% if a 0 stays in order this laser is unused, reset all lasers to unused first
-	cc.timepoints = 0;
+	% if a 0 stays in order this laser is unused
+	% reset all lasers to unused first
+	cc.tOn = 0;
+	cc.tOff = 0;
+	cc.tDac = 0;
 
 	% set all lasers to unused
 	flagOnda532 = 0;
@@ -83,33 +86,34 @@ function Calculate(cc)
 		end
 	end
 
-	tMax = max(cc.timepoints(:));
+	alltPoints = [cc.tOn, cc.tOff, cc.tDac, cc.tFire];
+	tMax = max(alltPoints(:));
 
 	if (tMax < cc.tAcquire)
 		tMax = cc.tAcquire;
 	end
 
 	for iPlot = 1:cc.nLasers
-		subplot(cc.nLasers, 1, iPlot)
+		subplot(cc.nLasers, 1, iPlot);
 		xlim([0, tMax]);
 	end
 
 	% if laser is not active we don't want the corresponding dac event so we just set it 
-	% to 255
+	% to -1
 	if (flagOnda532 == 0)
-		cc.timepoints(4, 1) = intmax('uint32');
+		cc.tDac(1, 1) = -1.0;
 	end
 
 	if (flagDye == 0)
-		cc.timepoints(4, 2) = intmax('uint32');
+		c.tDac(1, 2) = -1.0;
 	end
 	
 	if (flagOnda1064 == 0)
-		cc.timepoints(4, 3) = intmax('uint32');
+		c.tDac(1, 3) = -1.0;
 	end
 
 	if (flagUs == 0)
-		cc.timepoints(4, 4) = intmax('uint32');
+		c.tDac(1, 4) = -1.0;
 	end
 
 end

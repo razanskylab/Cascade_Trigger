@@ -5,10 +5,11 @@
 
 function Disconnect(cc)
 
-	fprintf('[CascadeCommunicator] Discounneting device... ');
+	fprintf("[CascadeCommunicator] Discounneting device... ");
+	tStart = tic();
 
 	cc.S = [];
 
-	fprintf('done!\n');
+	fprintf("done after %.2f sec!\n", toc(tStart));
 
 end

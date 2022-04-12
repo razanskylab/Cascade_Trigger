@@ -35,14 +35,14 @@ void Channel::reset_flags(){
 }
 
 // defines the onset time of the trigger channel
-void Channel::setOnTime(const uint32_t& _onTime)
+void Channel::set_onTime(const float& _onTime)
 {
 	onTime = _onTime;
 	return;
 }
 
 // defines the off time of the trigger channel
-void Channel::setOffTime(const uint32_t& _offTime)
+void Channel::set_offTime(const float& _offTime)
 {
 	offTime = _offTime;
 

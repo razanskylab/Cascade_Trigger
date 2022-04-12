@@ -13,29 +13,32 @@ class DacChannel{
 
 public:
 	// class constructor
-	DacChannel(const uint8_t _pin)
-	{
-		pin = _pin; // set internal pin for dac
-		pinMode(pin, OUTPUT); // declare pin as output
-		digitalWriteFast(pin, LOW); // initialize first output value
-		iLTrig = 0;
-	}
-
+	DacChannel(const uint8_t _pin);
+	DacChannel(const uint8_t _pin, const uint8_t _nTrig);
+	
 	// class destructor
-	// free memory of dynamic trigTime array
-	~DacChannel(){
-		delete [] trigTime;
-	}
-
+	~DacChannel();
+	
 	void update(uint32_t& timeNS);
 	void reset_flags();
-	void setTrigTimes(uint32_t *_trigTimes, const uint32_t _nTrig);
+
+	void set_trigTime(const float& _trigTime, const uint8_t iEvent);
+	float get_trigTime(const uint8_t iEvent) const {return trigTime[iEvent];};
+
+	void set_nTrig(const uint8_t& _nTrig);
+	uint8_t get_nTrig() const {return nTrig;};
 
 private:
+	float *trigTime = nullptr; // trigger time [ns]
+	bool *flagActive = nullptr; // is the channel in use or not
+	bool isTrigTimeAlloc = 0;
+
 	uint8_t pin; // output pin of teensy attached to DAC
-	uint32_t nTrig; // number of trigger events
-	uint32_t *trigTime; // trigger time [ns]
+	uint8_t nTrig = 4; // number of trigger events
 	uint32_t iLTrig; // stores last trigger event to avoid multi checking
 	bool lastDac; // states if dac was high or low for last trigger event
+
+	void free_mem();
+	void alloc_mem();
 
 };
