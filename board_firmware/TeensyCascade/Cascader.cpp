@@ -278,6 +278,7 @@ void Cascader::start_scascade()
 	digitalWriteFast(LED_STATUS, LOW);
 }
 
+
 // starts a cascade following an incoming trigger event
 void Cascader::cascade()
 {
@@ -306,3 +307,4 @@ void Cascader::cascade()
 	}
 	return;
 }
+

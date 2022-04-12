@@ -44,6 +44,7 @@ classdef CascadeCommunicator < handle
 		S; % serialport object
 		nLasers(1, 1) = 4; % different from nWavelength since it is the hardware side
 		% needs to be compatible with NLASERS in arduino code
+		baud_rate(1, 1) = 115200;
 	end
 
 	properties (Dependent)
@@ -103,7 +104,7 @@ classdef CascadeCommunicator < handle
 
 	methods
 
-		% Constructor
+
 		function cc = CascadeCommunicator(varargin)
 
 			if (nargin == 0)
@@ -114,9 +115,9 @@ classdef CascadeCommunicator < handle
 			else
 				error("Invalid number of input arguments");
 			end
-
-			cc.Connect();
 		end
+
+
 
 		% Destructor
 		function delete(h)
@@ -140,12 +141,17 @@ classdef CascadeCommunicator < handle
 		Initialize(cc); % initialize serial device
 		Start(cc); % 
 		SetN(cc); % define number of trigger events
-		StartN(cc); % start N trigger events
+		StartN(cc, varargin); % start N trigger events
 		Stop(cc);
+		StopN(cc);
+		Set_Input_Pin(cc, varargin);
 		Calculate(cc);
 		tEarliest = Calculate_Channel_Times(cc, tEarliest, iLaser);
 		Plot_Channel(cc, iLaser, laserColor);
 		Clear_Serial_Input(tc);
+		Identify(tc); % makes led blink and returns device id
+		res = Handshake(tc); % performs handshake with device if everything worked nice
+		Set_Trigger_Type(cc, trigType);
 
 		function nWavelengths = get.nWavelengths(cc)
 			nWavelengths = length(cc.wavelengths);

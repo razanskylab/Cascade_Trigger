@@ -1,13 +1,19 @@
-% File: Start.m @ CascadeCommunicator
+% File: Start.m @ TeensyCommunicator
 % Author: Urs Hofmann
 % Mail: hofmannu@biomed.ee.ethz.ch
-% Date: 25.04.2019
+% Date: 28.04.2020
 
-% Starts the multiwavelength trigger on teensy
+% Description: Starts the position based trigger scheme.
+% Changelog:
+% 		- include handshake if procedure done
 
 function Start(cc)
 
+	if ~cc.isConnected
+		error("Cannot start procedure");
+	end
+
 	write(cc.S, cc.START_CASCADE, "uint8");
 	cc.Handshake();
-	
+
 end

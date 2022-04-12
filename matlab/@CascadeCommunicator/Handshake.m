@@ -1,6 +1,7 @@
 % File: Handshake.m @ CascadeCommunicator
 % Author: Urs Hofmann
 % Mail: mail@hofmannu.org
+
 % Date: 25.03.2022
 
 % Description: performs a handshake with the device
@@ -20,6 +21,7 @@ function Handshake(cc)
 		errMsg = sprintf("Invalid return from microcontroller during handshake: %d", ...
 			returnVal);
 		error(errMsg);
+
 	end
 
 end

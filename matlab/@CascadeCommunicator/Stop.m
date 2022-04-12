@@ -5,10 +5,14 @@
 
 % Description: Stops cascader and reads the number of received trigger events.
 
-function nTrigger = Stop(cc)
+function Stop(cc)
+
+	fprintf("[CascadeCommunicator] Stopping cascader... ");
 
 	write(cc.S, cc.STOP_CASCADE, "uint8");
 	nTrigger = read(cc.S, 1, "uint16");
-	cc.Handshake();
+	res = cc.Handshake();
+
+	fprintf("done after %d trigger event(s)!\n", lastCascCount);
 
 end
