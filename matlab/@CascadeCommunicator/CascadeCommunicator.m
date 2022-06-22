@@ -126,8 +126,8 @@ classdef CascadeCommunicator < handle
 
 		Connect(cc); % stablish connection to serial device
 		Disconnect(cc); % close connection to serial device
-		Handshake(cc); % get feedbakc from microcontroller if everything worked
-		Identify(cc);
+		%Handshake(cc); % get feedbakc from microcontroller if everything worked
+		Identify(cc); % makes led blink and returns device id
 
 		Set_tOff(cc, iChannel, tOff);
 		tOff = Get_tOff(cc, iChannel);
@@ -149,7 +149,7 @@ classdef CascadeCommunicator < handle
 		tEarliest = Calculate_Channel_Times(cc, tEarliest, iLaser);
 		Plot_Channel(cc, iLaser, laserColor);
 		Clear_Serial_Input(tc);
-		Identify(tc); % makes led blink and returns device id
+		%Identify(tc); 
 		res = Handshake(tc); % performs handshake with device if everything worked nice
 		Set_Trigger_Type(cc, trigType);
 
@@ -176,6 +176,7 @@ classdef CascadeCommunicator < handle
 				isConnected = 1;
 			end
 		end
+
 
 		% set and get function for number of averages per trigger event
 		function set.nAverages(cc, nAverages)

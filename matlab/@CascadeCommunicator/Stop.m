@@ -11,8 +11,9 @@ function Stop(cc)
 
 	write(cc.S, cc.STOP_CASCADE, "uint8");
 	nTrigger = read(cc.S, 1, "uint16");
-	res = cc.Handshake();
+	cc.Handshake();
 
-	fprintf("done after %d trigger event(s)!\n", lastCascCount);
+	fprintf("done after %d trigger event(s)!\n", nTrigger);
 
 end
+

@@ -182,7 +182,6 @@ void Cascader::operate()
 	{
 		SerialNumbers::send_uint8(ERROR);
 	}
-
 	return;
 }
 
