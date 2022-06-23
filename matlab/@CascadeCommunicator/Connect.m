@@ -2,7 +2,7 @@
 % Author: Urs Hofmann, Xiang Liu
 % Mail: liuxian@student.eth.ch
 % Date: 22.06.2022 
-
+% <<<<<HEAD
 % function Connect(cc)
 	
 % 	tStart = tic();
