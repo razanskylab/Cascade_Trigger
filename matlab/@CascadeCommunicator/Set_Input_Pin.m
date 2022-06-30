@@ -7,24 +7,14 @@
 
 function Set_Input_Pin(cc, varargin)
 
+	fprintf("[CascadeCommunicator] Defining cascader input pin... ");
 	if nargin == 1
 		% do nothing
 	elseif nargin == 2
-		cc.inputPin = varargin{1};
+		cc.inputPin = varargin{1}; %set function
 	else
 		error("Invalid number of arguments passed to function");
 	end
-
-	fprintf("[CascadeCommunicator] Defining cascader input pin... ");
-
-	write(cc.S, 'p', "uint8");
-	write(cc.S, uint8(cc.inputPin), "uint8");
-	response = read(cc.S, 1, 'uint8');
-	if (response ~= cc.inputPin)
-		error("Something went wrong while defining the inputPin");
-	end
-	cc.Handshake();
-
 	fprintf("done!\n");
 
 

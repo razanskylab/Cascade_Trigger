@@ -48,7 +48,7 @@ classdef CascadeCommunicator < handle
 	end
 
 	properties (Dependent)
-		nWavelengths(1, 1);
+		nWavelengths(1, 1);  % what's this?
 		tMax(1, 1) double; % overall length of trigger cascade in micros
 		isConnected(1, 1) logical;
 		nShots(1, 1) uint32; % total number of shots (0 means without end)
@@ -115,6 +115,7 @@ classdef CascadeCommunicator < handle
 			else
 				error("Invalid number of input arguments");
 			end
+			%cc.Connect(); %Xiang
 		end
 
 
@@ -226,7 +227,7 @@ classdef CascadeCommunicator < handle
 			if (returnVal ~= single(tAcquire))
 				error("Something went wrong while setting acquisition time");
 			end
-			cc.Handshake();
+			%cc.Handshake(); %Xiang
 		end
 
 		% definintion of the input pin

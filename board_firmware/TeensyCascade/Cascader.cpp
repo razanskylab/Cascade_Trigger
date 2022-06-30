@@ -140,7 +140,7 @@ void Cascader::operate()
 	else if (mode == SET_INPUT_PIN)
 	{
 		const uint8_t iChannel = SerialNumbers::read_uint8();
-		define_input_pin(iChannel - 1);
+		define_input_pin(iChannel - 1); // -1 beacasue arduino number from 0, matlab from 1
 		SerialNumbers::send_uint8(inputPin + 1);
 		SerialNumbers::send_uint8(OK);
 	}
