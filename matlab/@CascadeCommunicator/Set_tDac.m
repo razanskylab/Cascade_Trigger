@@ -10,7 +10,7 @@ function Set_tDac(cc, tDac)
 	tDac = single(tDac); % make sure the array is a single
 
 	nT = length(tDac);
-	if (nT ~= cc.nLasers)
+	if (nT ~= cc.nLasers) % nLasers is set in the propertity
 		error("Number of timepoints must match number of lasers");
 	end
 

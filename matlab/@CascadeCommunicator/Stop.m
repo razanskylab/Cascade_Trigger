@@ -10,9 +10,9 @@ function Stop(cc)
 	fprintf("[CascadeCommunicator] Stopping cascader... ");
 
 	write(cc.S, cc.STOP_CASCADE, "uint8");
-	nTrigger = read(cc.S, 1, "uint16");
+	nTrigger = read(cc.S, 1, "uint16");				
 	cc.Handshake();
-
+	
 	fprintf("done after %d trigger event(s)!\n", nTrigger);
 
 end

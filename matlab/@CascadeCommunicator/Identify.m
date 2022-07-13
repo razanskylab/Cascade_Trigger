@@ -15,7 +15,7 @@ function Identify(cc)
 	tStart = tic();
 	fprintf("[CascadeCommunicator] Identifying device... ");
 
-	write(cc.S, cc.ID, "uint8");
+	write(cc.S, cc.IDENTIFY, "uint8");
 	returnId = read(cc.S, 1, "uint16");
 	if (returnId ~= cc.IDENTIFIER)
 		strMsg = sprintf("Invalid ID %d returned from device", returnId);

@@ -37,13 +37,24 @@ private:
 	const uint8_t nChannels = 4; // number of output channels
 	Channel chArray[4] = {10, 11, 9, 23}; // arduino pins of channels
 	// order: 532, edge, 1064, US pulser
-	DacChannel chDac = {12, 4}; // dac channel, argument: pin number
+	DacChannel chDac = {12, 4}; // dac channel, argument: pin number, on board Trigger SMA 1, pin 12 of arduino, correct
 	uint32_t endTime; // time indicating when we are done with cascade [ns]
 	float tAcquire = 6.0f; // total acquisition time inn micros
 	uint32_t nAverages = 1; // number of averages acquired at each trigger event
-	uint32_t nShots = 1; // number of shots we want to do
-	uint8_t inputPin = 0; // maps to labels on board with offset of 1 
-	const uint8_t INPUT_PINS[4] = {16, 17, 18, 19};
+	uint32_t nShots = 0; // number of shots we want to do
+
+	uint8_t inputPin = 0;
+	// 0 maps to labels on board with Trigger IN of 1 --> Pin 16
+	// 1 maps to labels on board with Trigger IN of 1 --> Pin 17
+	// 2 maps to labels on board with Trigger IN of 1 --> Pin 18
+	// 3 maps to labels on board with Trigger IN of 1 --> Pin 19
+	
+	const uint8_t INPUT_PINS[4] = {16, 17, 18, 19}; 
+	// Trigger In 1 on board connect the Teensy Pin 16
+	// Trigger In 2 on board connect the Teensy Pin 17
+	// Trigger In 3 on board connect the Teensy Pin 18
+	// Trigger In 4 on board connect the Teensy Pin 19
+
 	uint8_t inputTrigType = TRIG_BOTH; // rising, falling, or both edges
 	bool oldStatus = 0;
 	uint16_t iTrigger = 0;

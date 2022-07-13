@@ -13,7 +13,9 @@ function Start(cc)
 		error("Cannot start procedure");
 	end
 
+	fprintf("[CascadeCommunicator] Starting cascader... ");
 	write(cc.S, cc.START_CASCADE, "uint8");
 	cc.Handshake();
+	fprintf("done!\n");
 
 end

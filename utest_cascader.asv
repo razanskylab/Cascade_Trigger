@@ -4,7 +4,7 @@
 % C.Start; 
 
 %% uTest
-clear all; close all;
+%clear all; close all;
 
 C = CascadeCommunicator("COM10");
 C.Disconnect();
@@ -103,9 +103,9 @@ C.trigType = "both";
 C.trigType
 
 C.nShots = 100;
-C.nShots
 C.Start();
-%C.Stop();
+pause(10); % xiang
+C.Stop();
 
 
 

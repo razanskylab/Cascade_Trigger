@@ -12,7 +12,7 @@ void Cascader::setup()
 {
 	Serial.begin(115200); // start serial communication
 	pinMode(LED_STATUS, OUTPUT); // make led output
-	pinMode(INPUT_PINS[inputPin], INPUT_PULLUP); // declare input line
+	pinMode(INPUT_PINS[inputPin], INPUT); // declare input line
 }
 
 // wait until a certain amount of serial bytes arrived
@@ -187,7 +187,7 @@ void Cascader::operate()
 
 void Cascader::define_input_pin(const uint8_t iChannel)
 {
-	pinMode(INPUT_PINS[iChannel], INPUT_PULLUP);
+	pinMode(INPUT_PINS[iChannel], INPUT); //or INPUT_PULLUP
 	inputPin = iChannel;
 	return;
 }
@@ -253,17 +253,13 @@ void Cascader::start_scascade()
 {
 	digitalWriteFast(LED_STATUS, HIGH);
 	bool oldStatus = digitalReadFast(INPUT_PINS[inputPin]);
-	uint16_t iTrigger = 0;
-	do{ // trigger because of signal from position board
-		if(oldStatus ^ digitalReadFast(INPUT_PINS[inputPin])){	
-			oldStatus = !oldStatus; // invert oldStatus
-			cascade(); // start event loop
-		 	iTrigger++;
-		}
-	}while(Serial.available() == 0);
+	uint32_t iTrigger = 0;
+	do{
+		check_trigger();
+	}while (Serial.available() == 0);
 
 	const uint8_t tempResponse = SerialNumbers::read_uint8();
-	if (tempResponse == STOP_CASCADE)
+	if (tempResponse == STOP_CASCADE) 
 	{
 		SerialNumbers::send_uint16(iTrigger);
 		SerialNumbers::send_uint8(OK);

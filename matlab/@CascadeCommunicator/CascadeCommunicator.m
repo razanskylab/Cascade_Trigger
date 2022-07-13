@@ -48,23 +48,22 @@ classdef CascadeCommunicator < handle
 	end
 
 	properties (Dependent)
-		nWavelengths(1, 1);  % what's this?
+		nWavelengths(1, 1);  % how many wavelength totally
 		tMax(1, 1) double; % overall length of trigger cascade in micros
-		isConnected(1, 1) logical;
 		nShots(1, 1) uint32; % total number of shots (0 means without end)
 		nAverages(1, 1) uint32; % number of averages per position/timepoint
 		tAcquire(1, 1) single; % total data acquisition time in micros
-		inputPin(1, 1) uint8; % SMA pin used as input [1 ... 4]
+		inputPin(1, 1) uint8; % "Value 1 is right for Pos board, connect to Teensy Pin16" SMA pin used as input [1 ... 4], 1 means in Arduino 0, because ArduinoPin +1
 		trigType(1, 1);
+		isConnected(1, 1) logical = 0;
 	end
 
 	properties(Constant, Hidden)
 		% properties of serial connection
-		BAUD_RATE(1, 1) = 115200;
 		TERMINATOR(1, :) char = 'CR';
 
 		% dictionary
-		ID(1, 1) uint8 = 00;
+		IDENTIFY(1, 1) uint8 = 00;
 		IDENTIFIER(1, 1) uint16 = 75; % unique device for AZbsoluteQuad teensy
 
 		% DEFINE VARIABLES
@@ -115,7 +114,7 @@ classdef CascadeCommunicator < handle
 			else
 				error("Invalid number of input arguments");
 			end
-			%cc.Connect(); %Xiang
+			cc.Connect();
 		end
 
 
@@ -127,7 +126,6 @@ classdef CascadeCommunicator < handle
 
 		Connect(cc); % stablish connection to serial device
 		Disconnect(cc); % close connection to serial device
-		%Handshake(cc); % get feedbakc from microcontroller if everything worked
 		Identify(cc); % makes led blink and returns device id
 
 		Set_tOff(cc, iChannel, tOff);
@@ -150,7 +148,6 @@ classdef CascadeCommunicator < handle
 		tEarliest = Calculate_Channel_Times(cc, tEarliest, iLaser);
 		Plot_Channel(cc, iLaser, laserColor);
 		Clear_Serial_Input(tc);
-		%Identify(tc); 
 		res = Handshake(tc); % performs handshake with device if everything worked nice
 		Set_Trigger_Type(cc, trigType);
 
@@ -227,7 +224,7 @@ classdef CascadeCommunicator < handle
 			if (returnVal ~= single(tAcquire))
 				error("Something went wrong while setting acquisition time");
 			end
-			%cc.Handshake(); %Xiang
+			cc.Handshake(); 
 		end
 
 		% definintion of the input pin
@@ -259,8 +256,6 @@ classdef CascadeCommunicator < handle
 				error("Trigger type can be rising, falling, or both");
 			end
 
-			trigTypeKey
-
 			write(cc.S, cc.SET_TRIGTYPE, "uint8");
 			write(cc.S, trigTypeKey, "uint8");
 			response = read(cc.S, 1, "uint8");
@@ -284,7 +279,8 @@ classdef CascadeCommunicator < handle
 			elseif (response == cc.TRIG_BOTH)
 				trigType = "both";
 			else
-			 	trigType = "invalid;" 
+			 	trigType = "invalid";
+			 	error("Trigger type returned from board is not valid");
 			end
 
 			cc.Handshake();
