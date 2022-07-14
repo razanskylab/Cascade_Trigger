@@ -253,14 +253,18 @@ void Cascader::start_scascade()
 {
 	digitalWriteFast(LED_STATUS, HIGH);
 	bool oldStatus = digitalReadFast(INPUT_PINS[inputPin]);
-	uint16_t iTrigger = 0;
-	do{ // trigger because of signal from position board
-		if(oldStatus ^ digitalReadFast(INPUT_PINS[inputPin])){	
-			oldStatus = !oldStatus; // invert oldStatus
-			cascade(); // start event loop
-		 	iTrigger++;
-		}
-	}while(Serial.available() == 0);
+	// uint16_t iTrigger = 0;
+	// do{ // trigger because of signal from position board
+	// 	if(oldStatus ^ digitalReadFast(INPUT_PINS[inputPin])){	
+	// 		oldStatus = !oldStatus; // invert oldStatus
+	// 		cascade(); // start event loop
+	// 	 	iTrigger++;
+	// 	}
+	// }while(Serial.available() == 0);
+	uint32_t iTrigger = 0;
+	do{
+		check_trigger();
+	}while (Serial.available() == 0);
 
 	const uint8_t tempResponse = SerialNumbers::read_uint8();
 	if (tempResponse == STOP_CASCADE)
@@ -287,7 +291,7 @@ void Cascader::cascade()
 		timeNS = 0; // set timer to 0
 		do
 		{
-			WAIT_384_NS
+			WAIT_384_NS //wait 384 nanoseconds?
 			timeNS = timeNS + 700;
 			chDac.update(timeNS); // each dac trigger contains another 12 NS sleep
 

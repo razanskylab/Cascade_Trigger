@@ -1,6 +1,6 @@
 clear all; close all;
 
-C = CascadeCommunicator("COM10");
+C = CascadeCommunicator("COM15");
 C.Disconnect();
 
 for i = 1:10
@@ -21,6 +21,7 @@ for (iAv = 1:length(nAv))
 	end
 end
 fprintf("done!\n");
+C.nAverages = 10;
 
 fprintf("Setting number of shots... ");
 nShots = uint32(0:10:100);
@@ -88,6 +89,7 @@ for iPin = 1:4
 	end
 end
 fprintf("done!\n");
+C.inputPin = 1;
 
 C.trigType = "falling";
 C.trigType
@@ -104,5 +106,8 @@ C.Stop();
 
 % this line should throw a warning
 C.Stop();
+C
+%close all;
+%clear all; 
 
-clear all;
+%C.Set_tDac([1, 10, 100, 300]);

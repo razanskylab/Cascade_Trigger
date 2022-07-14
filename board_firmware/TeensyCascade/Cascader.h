@@ -37,7 +37,7 @@ private:
 	const uint8_t nChannels = 4; // number of output channels
 	Channel chArray[4] = {10, 11, 9, 23}; // arduino pins of channels
 	// order: 532, edge, 1064, US pulser
-	DacChannel chDac = {12, 4}; // dac channel, argument: pin number
+	DacChannel chDac = {12, 4}; // dac channel, argument: pin number, 4 means 4 _nTrig
 	uint32_t endTime; // time indicating when we are done with cascade [ns]
 	float tAcquire = 6.0f; // total acquisition time inn micros
 	uint32_t nAverages = 1; // number of averages acquired at each trigger event

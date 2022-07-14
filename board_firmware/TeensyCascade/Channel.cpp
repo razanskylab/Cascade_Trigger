@@ -8,7 +8,7 @@ void Channel::update(const uint32_t& time){
 		{
 			if (time >= onTime)
 			{
-				digitalWriteFast(pin, HIGH);
+				digitalWrite(pin, HIGH);
 				flagOn = 1;
 			}
 		}
@@ -16,7 +16,7 @@ void Channel::update(const uint32_t& time){
 		{
 			if (time >= offTime)
 			{
-				digitalWriteFast(pin, LOW);
+				digitalWrite(pin, LOW);
 				flagOff = 1;
 				flagDone = 1;
 			}

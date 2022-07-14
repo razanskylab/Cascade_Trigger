@@ -35,9 +35,9 @@ void DacChannel::update(uint32_t& timeNS)
 
 	if ((timeNS >= trigTime[iLTrig]) && (iLTrig < nTrig))
 	{
-		digitalWriteFast(pin, HIGH);
+		digitalWrite(pin, HIGH);
 		WAIT_12_NS
-		digitalWriteFast(pin, LOW);
+		digitalWrite(pin, LOW);
 		timeNS = timeNS + 12; // increase timer due to sleep period
 		iLTrig++; // move to next trigger event
 	}
