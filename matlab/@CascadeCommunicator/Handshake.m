@@ -12,7 +12,7 @@ function Handshake(cc)
 	if (returnVal == cc.OK)
 		% nothing to do, handshake was nice
 	elseif (returnVal == cc.WARNING)
-		warning("Controller did throw warning");
+		warning("Cascader is already stopped");
 	elseif (returnVal == cc.ERROR)
 		error("Something went wronmg during execution, microcontroller returned error");
 	elseif (isempty(returnVal))

@@ -1,6 +1,6 @@
 clear all; close all;
 
-C = CascadeCommunicator("COM15");
+C = CascadeCommunicator("COM16");
 C.Disconnect();
 
 for i = 1:10

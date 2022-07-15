@@ -149,7 +149,6 @@ classdef CascadeCommunicator < handle
 		tEarliest = Calculate_Channel_Times(cc, tEarliest, iLaser);
 		Plot_Channel(cc, iLaser, laserColor);
 		Clear_Serial_Input(tc);
-		%Identify(tc); 
 		res = Handshake(tc); % performs handshake with device if everything worked nice
 		Set_Trigger_Type(cc, trigType);
 
@@ -258,7 +257,6 @@ classdef CascadeCommunicator < handle
 				error("Trigger type can be rising, falling, or both");
 			end
 
-			trigTypeKey
 
 			write(cc.S, cc.SET_TRIGTYPE, "uint8");
 			write(cc.S, trigTypeKey, "uint8");
@@ -283,7 +281,8 @@ classdef CascadeCommunicator < handle
 			elseif (response == cc.TRIG_BOTH)
 				trigType = "both";
 			else
-			 	trigType = "invalid;" 
+			 	trigType = "invalid";
+			 	error("Trigger type returned from board is not valid"); 
 			end
 
 			cc.Handshake();
